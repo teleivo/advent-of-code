@@ -10,25 +10,38 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
+	if err := run(os.Stdout, os.Args); err != nil {
 		fmt.Errorf("exit with error due to: %v", err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
+func run(w io.Writer, args []string) error {
+	if len(args) != 2 {
+		return fmt.Errorf("expected one argument pointing to the calibration document, instead got %d args", len(args))
+	}
+
+	file := args[1]
+	f, err := os.Open(file)
+	if err != nil {
+		return fmt.Errorf("failed to open file %q: %v", file, err)
+	}
+
+	cal := decodeCalibrationDocument(f)
+	fmt.Fprintf(w, "The calibration value is %d\n", cal)
+
 	return nil
 }
 
 // decodeCalibration decodes and sums all the calibration values hidden by the artsy elf.
 func decodeCalibrationDocument(r io.Reader) int {
-	var sum int
+	var cal int
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
 		v := decodeCalibration(sc.Text())
-		sum += v
+		cal += v
 	}
-	return sum
+	return cal
 }
 
 // decodeCalibration decodes the calibration value hidden by the artsy elf.
