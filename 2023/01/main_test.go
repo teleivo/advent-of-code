@@ -6,15 +6,34 @@ import (
 )
 
 func TestDecodeCalibrationDocument(t *testing.T) {
-	in := `1abc2
+	tests := []struct {
+		in   string
+		want int
+	}{
+		{
+			in: `1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
-treb7uchet`
-	want := 142
+treb7uchet`,
+			want: 142,
+		},
+		{
+			in: `two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen`,
+			want: 281,
+		},
+	}
 
-	got := decodeCalibrationDocument(strings.NewReader(in))
-	if got != want {
-		t.Errorf("decodeCalibrationDocument(%q) = %d; want %d", in, got, want)
+	for _, tc := range tests {
+		got := decodeCalibrationDocument(strings.NewReader(tc.in))
+		if got != tc.want {
+			t.Errorf("decodeCalibrationDocument(%q) = %d; want %d", tc.in, got, tc.want)
+		}
 	}
 }
 
@@ -38,6 +57,46 @@ func TestDecodeCalibration(t *testing.T) {
 		{
 			in:   "treb7uchet",
 			want: 77,
+		},
+		{
+			in:   "two1nine",
+			want: 29,
+		},
+		{
+			in:   "eighthree",
+			want: 83,
+		},
+		{
+			in:   "eightthree",
+			want: 83,
+		},
+		{
+			in:   "eightwothree",
+			want: 83,
+		},
+		{
+			in:   "abcone2threexyz",
+			want: 13,
+		},
+		{
+			in:   "xtwone3four",
+			want: 24,
+		},
+		{
+			in:   "4nineeightseven2",
+			want: 42,
+		},
+		{
+			in:   "zoneight234",
+			want: 14,
+		},
+		{
+			in:   "7pqrstsixteen",
+			want: 76,
+		},
+		{
+			in:   "sevenine",
+			want: 79,
 		},
 	}
 

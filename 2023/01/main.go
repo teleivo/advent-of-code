@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"unicode"
 )
 
@@ -44,9 +45,23 @@ func decodeCalibrationDocument(r io.Reader) int {
 	return cal
 }
 
+var digits = map[string]rune{
+	"one":   '1',
+	"two":   '2',
+	"three": '3',
+	"four":  '4',
+	"five":  '5',
+	"six":   '6',
+	"seven": '7',
+	"eight": '8',
+	"nine":  '9',
+}
+
 // decodeCalibration decodes the calibration value hidden by the artsy elf.
 func decodeCalibration(line string) int {
 	var first, last rune
+	var letters []rune
+
 	for _, c := range line {
 		if unicode.IsDigit(c) {
 			if first == 0 {
@@ -54,6 +69,24 @@ func decodeCalibration(line string) int {
 				last = c
 			} else {
 				last = c
+			}
+			letters = nil
+		} else {
+			letters = append(letters, c)
+			for digit, v := range digits {
+				idx := strings.Index(string(letters), digit)
+
+				if idx != -1 {
+					if first == 0 {
+						first = v
+						last = v
+					} else {
+						last = v
+					}
+
+					letters = letters[len(letters)-1:]
+					break
+				}
 			}
 		}
 	}
