@@ -11,14 +11,14 @@ import (
 
 func main() {
 	if err := run(os.Stdout, os.Args); err != nil {
-		fmt.Errorf("exit with error due to: %v", err)
+		fmt.Printf("exit due to: %v\n", err)
 		os.Exit(1)
 	}
 }
 
 func run(w io.Writer, args []string) error {
 	if len(args) != 2 {
-		return fmt.Errorf("expected one argument pointing to the calibration document, instead got %d args", len(args))
+		return fmt.Errorf("expected one argument pointing to the calibration document, instead got %d args", len(args)-1)
 	}
 
 	file := args[1]
