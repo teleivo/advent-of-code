@@ -24,22 +24,35 @@ func run(w io.Writer, args []string) error {
 	}
 
 	file := args[1]
+
 	f, err := os.Open(file)
 	if err != nil {
 		return fmt.Errorf("failed to open file %q: %v", file, err)
 	}
-
-	
-	cal, err := solve(f, [3]int{12, 13, 14})
+	defer f.Close()
+	cal, err := solveFeasibleGames(f, [3]int{12, 13, 14})
 	if err!=nil{
 		return err
 	}
-	fmt.Fprintf(w, "The solution is: %d\n", cal)
+	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
+
+	ff, err := os.Open(file)
+	if err != nil {
+		return fmt.Errorf("failed to open file %q: %v", file, err)
+	}
+	defer ff.Close()
+	cal, err = solveMinimumSetOfCubes(ff)
+	if err!=nil{
+		return err
+	}
+	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", cal)
 
 	return nil
 }
 
-func solve(r io.Reader, cubes[3]int) (int, error) {
+// solveFeasibleGames solves part one of the puzzle. What is the sum of the game IDs that could be
+// played with the given cubes.
+func solveFeasibleGames(r io.Reader, cubes[3]int) (int, error) {
 	var sum int
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
@@ -47,13 +60,29 @@ func solve(r io.Reader, cubes[3]int) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		fmt.Println(g)
 
 		if g.cubes[0] <= cubes[0] &&
 		g.cubes[1] <= cubes[1] &&
 		g.cubes[2] <= cubes[2] {
 		sum += g.ID
 		}
+	}
+	return sum, nil
+}
+
+// solveMinimumSetOfCubes solves part two of the puzzle. What is the sum of the powers of the minimum set of cubes that must have been present
+// for a game to be played. Luckily, I already parse the game sets into the max cubes per rgb
+// colors. The max cube per color is the minimum cubes you need of that color to play a game.
+func solveMinimumSetOfCubes(r io.Reader) (int, error) {
+	var sum int
+	sc := bufio.NewScanner(r)
+	for sc.Scan() {
+		g , err := parseLine(sc.Text())
+		if err != nil {
+			return 0, err
+		}
+
+		sum += g.cubes[0]*g.cubes[1]*g.cubes[2]
 	}
 	return sum, nil
 }
@@ -73,7 +102,6 @@ func parseLine(line string) (*game, error) {
 		return nil, fmt.Errorf("failed scanning game ID and sets expected 1 token instead got %d", n)
 	}
 	
-	fmt.Println(sets)
 	return &game{
 		ID: ID,
 		cubes: maxCubes(sets),

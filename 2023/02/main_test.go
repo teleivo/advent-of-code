@@ -23,7 +23,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green`,
 	}
 
 	for _, tc := range tests {
-		got, err := solve(strings.NewReader(tc.in), [3]int{12, 13, 14})
+		got, err := solveFeasibleGames(strings.NewReader(tc.in), [3]int{12, 13, 14})
 		if err!=nil {
 			t.Fatalf("expected no error instead got %v", err)
 		}
