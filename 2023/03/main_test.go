@@ -25,6 +25,76 @@ func TestSolve(t *testing.T) {
 .664.598..`,
 			want: 4361,
 		},
+		{
+			in: `..........
+.*35..633.`,
+			want: 35,
+		},
+		{
+			in: `..........
+..35*.633.`,
+			want: 35,
+		},
+		{
+			in: `..........
+..35..633*`,
+			want: 633,
+		},
+		{
+			in: `*.........
+..35..633.`,
+			want: 0,
+		},
+		{
+			in: `.*........
+..35..633.`,
+			want: 35,
+		},
+		{
+			in: `..*.......
+..35..633.`,
+			want: 35,
+		},
+		{
+			in: `...*......
+..35..633.`,
+			want: 35,
+		},
+		{
+			in: `....*.....
+..35..633.`,
+			want: 35,
+		},
+		{
+			in: `..........
+..35..633.
+..........`,
+			want: 0,
+		},
+		{
+			in: `..........
+..35..633.
+.*........`,
+			want: 35,
+		},
+		{
+			in: `..........
+..35..633.
+..*.......`,
+			want: 35,
+		},
+		{
+			in: `..........
+..35..633.
+...*......`,
+			want: 35,
+		},
+		{
+			in: `..........
+..35..633.
+....*.....`,
+			want: 35,
+		},
 	}
 
 	for _, tc := range tests {
@@ -98,5 +168,44 @@ func TestParseLine(t *testing.T) {
 			t.Errorf("parseLine() mismatch (-want +got):\n%s", diff)
 		}
 	}
+}
 
+func TestIsSymbol(t *testing.T) {
+	tests := []struct {
+		in   rune
+		want bool
+	}{
+		{
+			in:   '*',
+			want: true,
+		},
+		{
+			in:   '!',
+			want: true,
+		},
+		{
+			in:   '!',
+			want: true,
+		},
+		{
+			in:   '/',
+			want: true,
+		},
+		{
+			in:   '&',
+			want: true,
+		},
+		{
+			in:   '%',
+			want: true,
+		},
+	}
+
+	for _, tc := range tests {
+		got := isSymbol(tc.in)
+
+		if got != tc.want {
+			t.Errorf("isSymbol(%q) = %t; want %t", tc.in, got, tc.want)
+		}
+	}
 }

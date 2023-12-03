@@ -141,3 +141,10 @@ func parseLine(in string) (*line, error) {
 
 	return &res, nil
 }
+
+func isSymbol(c rune) bool {
+	if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) {
+		return true
+	}
+	return false
+}
