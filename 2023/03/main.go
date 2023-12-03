@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -38,21 +39,68 @@ func run(w io.Writer, args []string) error {
 
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
-	// var sum int
-	// sc := bufio.NewScanner(r)
-	// for sc.Scan() {
-	// 	vals, err := parseLine(sc.Text())
-	// 	if err != nil {
-	// 		return 0, err
-	// 	}
-	// 	for _, v := range vals {
-	// 		sum += v
-	// 	}
-	// }
-	// return sum, nil
-	return 0, nil
+	sc := bufio.NewScanner(r)
+
+	var vals []int
+	var err error
+	var prev, cur, next *line
+	for sc.Scan() {
+		if prev == nil && cur == nil { // initial case
+			cur, err = parseLine(sc.Text())
+			if err != nil {
+				return 0, err
+			}
+			continue // we need to see if there is a line after this one to make a decision on the numbers
+		} else if next == nil { // second case
+			next, err = parseLine(sc.Text())
+			if err != nil {
+				return 0, err
+			}
+		} else { // once two lines have been parsed
+			prev = cur
+			cur = next
+			next, err = parseLine(sc.Text())
+			if err != nil {
+				return 0, err
+			}
+		}
+		vals = collectPartNumbers(prev, cur, next, vals)
+	}
+	// todo deal with last
+	vals = collectPartNumbers(cur, next, nil, vals)
+
+	var sum int
+	for _, v := range vals {
+		sum += v
+	}
+	return sum, nil
 }
 
+func collectPartNumbers(prev, cur, next *line, partNumbers []int) []int {
+	fmt.Println(prev, cur, next)
+	for _, n := range cur.Numbers {
+		if (prev != nil && isSymbolAdjacent(n, prev.Symbols)) || isSymbolAdjacent(n, cur.Symbols) || (next != nil && isSymbolAdjacent(n, next.Symbols)) {
+			partNumbers = append(partNumbers, n.Value)
+			continue
+		}
+	}
+
+	return partNumbers
+}
+
+func isSymbolAdjacent(n number, symbols map[int]struct{}) bool {
+	for pos := range symbols {
+		fmt.Println(n, pos)
+		if pos >= n.Start-1 && pos <= n.End+1 {
+			fmt.Println("yes")
+			return true
+		}
+		// TODO bail out of symbols loop if we are out of range
+	}
+	return false
+}
+
+// TODO Symbols can simply be a slice
 type line struct {
 	Numbers []number
 	Symbols map[int]struct{}
@@ -64,7 +112,7 @@ type number struct {
 	End   int
 }
 
-func parseLine(in string) (line, error) {
+func parseLine(in string) (*line, error) {
 	res := line{Symbols: map[int]struct{}{}}
 	var num *number
 
@@ -78,19 +126,18 @@ func parseLine(in string) (line, error) {
 				num.End = i - 1
 				v, err := strconv.Atoi(in[num.Start : num.End+1])
 				if err != nil {
-					return res, fmt.Errorf("failed to parse number: %v", err)
+					return nil, fmt.Errorf("failed to parse number: %v", err)
 				}
 				num.Value = v
 				res.Numbers = append(res.Numbers, *num)
 				num = nil
 			}
 
-			// if c != '.' && unicode.IsSymbol(c) {
-			if c == '*' {
+			if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) {
 				res.Symbols[i] = struct{}{}
 			}
 		}
 	}
 
-	return res, nil
+	return &res, nil
 }
