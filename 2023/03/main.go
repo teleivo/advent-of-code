@@ -55,7 +55,7 @@ func solvePartOne(r io.Reader) (int, error) {
 
 type line struct {
 	Numbers []number
-	Symbols []number
+	Symbols map[int]struct{}
 }
 
 type number struct {
@@ -65,8 +65,7 @@ type number struct {
 }
 
 func parseLine(in string) (line, error) {
-
-	var res line
+	res := line{Symbols: map[int]struct{}{}}
 	var num *number
 
 	for i, c := range in {
@@ -84,6 +83,11 @@ func parseLine(in string) (line, error) {
 				num.Value = v
 				res.Numbers = append(res.Numbers, *num)
 				num = nil
+			}
+
+			// if c != '.' && unicode.IsSymbol(c) {
+			if c == '*' {
+				res.Symbols[i] = struct{}{}
 			}
 		}
 	}

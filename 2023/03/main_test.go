@@ -50,7 +50,7 @@ func TestParseLine(t *testing.T) {
 					{Value: 467, Start: 0, End: 2},
 					{Value: 114, Start: 5, End: 7},
 				},
-				Symbols: nil,
+				Symbols: map[int]struct{}{},
 			},
 		},
 		{
@@ -59,7 +59,9 @@ func TestParseLine(t *testing.T) {
 				Numbers: []number{
 					{Value: 617, Start: 0, End: 2},
 				},
-				Symbols: nil,
+				Symbols: map[int]struct{}{
+					3: {},
+				},
 			},
 		},
 	}
