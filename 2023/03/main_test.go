@@ -146,7 +146,7 @@ func TestParseLine(t *testing.T) {
 					{Value: 467, Start: 0, End: 2},
 					{Value: 114, Start: 5, End: 7},
 				},
-				Symbols: map[int]struct{}{},
+				Symbols: nil,
 			},
 		},
 		{
@@ -155,7 +155,7 @@ func TestParseLine(t *testing.T) {
 				Numbers: []number{
 					{Value: 467, Start: 3, End: 5},
 				},
-				Symbols: map[int]struct{}{},
+				Symbols: nil,
 			},
 		},
 		{
@@ -164,9 +164,7 @@ func TestParseLine(t *testing.T) {
 				Numbers: []number{
 					{Value: 617, Start: 0, End: 2},
 				},
-				Symbols: map[int]struct{}{
-					3: {},
-				},
+				Symbols: []int{3},
 			},
 		},
 		{
@@ -175,19 +173,14 @@ func TestParseLine(t *testing.T) {
 				Numbers: []number{
 					{Value: 58, Start: 7, End: 8},
 				},
-				Symbols: map[int]struct{}{
-					5: {},
-				},
+				Symbols: []int{5},
 			},
 		},
 		{
 			in: "...$.*....",
 			want: &line{
 				Numbers: nil,
-				Symbols: map[int]struct{}{
-					3: {},
-					5: {},
-				},
+				Symbols: []int{3, 5},
 			},
 		},
 	}

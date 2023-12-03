@@ -42,27 +42,21 @@ func solvePartOne(r io.Reader) (int, error) {
 	sc := bufio.NewScanner(r)
 
 	var vals []int
-	var err error
 	var prev, cur, next *line
 	for sc.Scan() {
+		l, err := parseLine(sc.Text())
+		if err != nil {
+			return 0, err
+		}
 		if prev == nil && cur == nil { // initial case
-			cur, err = parseLine(sc.Text())
-			if err != nil {
-				return 0, err
-			}
+			cur = l
 			continue // we need to see if there is a line after this one to make a decision on the numbers
 		} else if next == nil { // second case
-			next, err = parseLine(sc.Text())
-			if err != nil {
-				return 0, err
-			}
+			next = l
 		} else { // once two lines have been parsed
 			prev = cur
 			cur = next
-			next, err = parseLine(sc.Text())
-			if err != nil {
-				return 0, err
-			}
+			next = l
 		}
 		vals = collectPartNumbers(prev, cur, next, vals)
 	}
@@ -87,8 +81,8 @@ func collectPartNumbers(prev, cur, next *line, partNumbers []int) []int {
 	return partNumbers
 }
 
-func isSymbolAdjacent(n number, symbols map[int]struct{}) bool {
-	for pos := range symbols {
+func isSymbolAdjacent(n number, symbols []int) bool {
+	for _, pos := range symbols {
 		fmt.Println("number", n, "symbol pos", pos)
 		if pos >= n.Start-1 && pos <= n.End+1 {
 			fmt.Println("yes")
@@ -102,7 +96,7 @@ func isSymbolAdjacent(n number, symbols map[int]struct{}) bool {
 // TODO Symbols can simply be a slice
 type line struct {
 	Numbers []number
-	Symbols map[int]struct{}
+	Symbols []int
 }
 
 type number struct {
@@ -112,7 +106,7 @@ type number struct {
 }
 
 func parseLine(in string) (*line, error) {
-	res := line{Symbols: map[int]struct{}{}}
+	res := line{}
 	var num *number
 
 	var x int
@@ -135,7 +129,7 @@ func parseLine(in string) (*line, error) {
 			}
 
 			if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) {
-				res.Symbols[i] = struct{}{}
+				res.Symbols = append(res.Symbols, i)
 			}
 		}
 	}
