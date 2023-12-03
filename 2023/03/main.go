@@ -66,7 +66,6 @@ func solvePartOne(r io.Reader) (int, error) {
 		}
 		vals = collectPartNumbers(prev, cur, next, vals)
 	}
-	// todo deal with last
 	vals = collectPartNumbers(cur, next, nil, vals)
 
 	var sum int
@@ -77,7 +76,7 @@ func solvePartOne(r io.Reader) (int, error) {
 }
 
 func collectPartNumbers(prev, cur, next *line, partNumbers []int) []int {
-	fmt.Println(prev, cur, next)
+	fmt.Println("collectPartNumbers", prev, cur, next)
 	for _, n := range cur.Numbers {
 		if (prev != nil && isSymbolAdjacent(n, prev.Symbols)) || isSymbolAdjacent(n, cur.Symbols) || (next != nil && isSymbolAdjacent(n, next.Symbols)) {
 			partNumbers = append(partNumbers, n.Value)
@@ -90,7 +89,7 @@ func collectPartNumbers(prev, cur, next *line, partNumbers []int) []int {
 
 func isSymbolAdjacent(n number, symbols map[int]struct{}) bool {
 	for pos := range symbols {
-		fmt.Println(n, pos)
+		fmt.Println("number", n, "symbol pos", pos)
 		if pos >= n.Start-1 && pos <= n.End+1 {
 			fmt.Println("yes")
 			return true
@@ -116,7 +115,9 @@ func parseLine(in string) (*line, error) {
 	res := line{Symbols: map[int]struct{}{}}
 	var num *number
 
+	var x int
 	for i, c := range in {
+		x = i
 		if unicode.IsDigit(c) {
 			if num == nil {
 				num = &number{Start: i, End: i}
@@ -138,12 +139,22 @@ func parseLine(in string) (*line, error) {
 			}
 		}
 	}
+	if num != nil {
+		num.End = x
+		v, err := strconv.Atoi(in[num.Start : num.End+1])
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse number: %v", err)
+		}
+		num.Value = v
+		res.Numbers = append(res.Numbers, *num)
+		num = nil
+	}
 
 	return &res, nil
 }
 
 func isSymbol(c rune) bool {
-	if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) {
+	if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) && !unicode.IsNumber(c) {
 		return true
 	}
 	return false

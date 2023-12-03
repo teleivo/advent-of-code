@@ -95,9 +95,34 @@ func TestSolve(t *testing.T) {
 ....*.....`,
 			want: 35,
 		},
+		{
+			in: `..........
+..........
+..35..633.`,
+			want: 0,
+		},
+		{
+			in: `..........
+.*........
+..35..633.`,
+			want: 35,
+		},
+		{
+			in: `..........
+..%.......
+..35..633.`,
+			want: 35,
+		},
+		{
+			in: `..........
+.........$
+..35...633`,
+			want: 633,
+		},
 	}
 
 	for _, tc := range tests {
+		t.Log("test input", tc.in)
 		got, err := solvePartOne(strings.NewReader(tc.in))
 		if err != nil {
 			t.Fatalf("expected no error instead got %v", err)
@@ -120,6 +145,15 @@ func TestParseLine(t *testing.T) {
 				Numbers: []number{
 					{Value: 467, Start: 0, End: 2},
 					{Value: 114, Start: 5, End: 7},
+				},
+				Symbols: map[int]struct{}{},
+			},
+		},
+		{
+			in: "...467",
+			want: &line{
+				Numbers: []number{
+					{Value: 467, Start: 3, End: 5},
 				},
 				Symbols: map[int]struct{}{},
 			},
