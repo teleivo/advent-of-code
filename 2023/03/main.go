@@ -34,6 +34,17 @@ func run(w io.Writer, args []string) error {
 	}
 	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
 
+	f2, err := os.Open(file)
+	if err != nil {
+		return fmt.Errorf("failed to open file %q: %v", file, err)
+	}
+	defer f2.Close()
+	cal, err = solvePartTwo(f2)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", cal)
+
 	return nil
 }
 
@@ -189,9 +200,8 @@ func solvePartTwo(r io.Reader) (int, error) {
 	return sum, nil
 }
 
+// TODO 4082059 is too low
 func collectGears(prev, cur, next *line, gears []int) []int {
-	// fmt.Println("collectGears", prev, cur, next)
-
 	var adj []int
 	for _, pos := range cur.Symbols {
 		for _, num := range prev.Numbers {
@@ -221,7 +231,7 @@ func collectGears(prev, cur, next *line, gears []int) []int {
 	}
 
 	if len(adj) == 2 {
-		fmt.Printf("gear: %d*%d=%d\n", adj[0], adj[1], adj[0]*adj[1])
+		// fmt.Printf("gear: %d*%d=%d\n", adj[0], adj[1], adj[0]*adj[1])
 		gears = append(gears, adj[0]*adj[1])
 	}
 	return gears
@@ -229,7 +239,7 @@ func collectGears(prev, cur, next *line, gears []int) []int {
 
 func isNumberAdjacent(symbolPos int, num number) bool {
 	if symbolPos >= num.Start-1 && symbolPos <= num.End+1 {
-		fmt.Printf("adjacent: symbol at %d to number %v\n", symbolPos, num)
+		// fmt.Printf("adjacent: symbol at %d to number %v\n", symbolPos, num)
 		return true
 	}
 	return false
