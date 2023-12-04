@@ -24,7 +24,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green`,
 
 	for _, tc := range tests {
 		got, err := solveFeasibleGames(strings.NewReader(tc.in), [3]int{12, 13, 14})
-		if err!=nil {
+		if err != nil {
 			t.Fatalf("expected no error instead got %v", err)
 		}
 
@@ -41,17 +41,17 @@ func TestParseLine(t *testing.T) {
 		want game
 	}{
 		{
-			in:   "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
+			in: "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
 			want: game{
-				ID: 1,
-				cubes: [3]int{ 4, 3, 6 },
+				ID:    1,
+				cubes: [3]int{4, 3, 6},
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		got, err := parseLine(tc.in)
-		if err!=nil {
+		if err != nil {
 			t.Fatalf("expected no error instead got %v", err)
 		}
 

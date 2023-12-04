@@ -2,12 +2,12 @@ package main
 
 import (
 	"bufio"
-	"strings"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"unicode"
 )
 
@@ -31,7 +31,7 @@ func run(w io.Writer, args []string) error {
 	}
 	defer f.Close()
 	cal, err := solveFeasibleGames(f, [3]int{12, 13, 14})
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
@@ -42,7 +42,7 @@ func run(w io.Writer, args []string) error {
 	}
 	defer ff.Close()
 	cal, err = solveMinimumSetOfCubes(ff)
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", cal)
@@ -52,19 +52,19 @@ func run(w io.Writer, args []string) error {
 
 // solveFeasibleGames solves part one of the puzzle. What is the sum of the game IDs that could be
 // played with the given cubes.
-func solveFeasibleGames(r io.Reader, cubes[3]int) (int, error) {
+func solveFeasibleGames(r io.Reader, cubes [3]int) (int, error) {
 	var sum int
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
-		g , err := parseLine(sc.Text())
+		g, err := parseLine(sc.Text())
 		if err != nil {
 			return 0, err
 		}
 
 		if g.cubes[0] <= cubes[0] &&
-		g.cubes[1] <= cubes[1] &&
-		g.cubes[2] <= cubes[2] {
-		sum += g.ID
+			g.cubes[1] <= cubes[1] &&
+			g.cubes[2] <= cubes[2] {
+			sum += g.ID
 		}
 	}
 	return sum, nil
@@ -77,39 +77,39 @@ func solveMinimumSetOfCubes(r io.Reader) (int, error) {
 	var sum int
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
-		g , err := parseLine(sc.Text())
+		g, err := parseLine(sc.Text())
 		if err != nil {
 			return 0, err
 		}
 
-		sum += g.cubes[0]*g.cubes[1]*g.cubes[2]
+		sum += g.cubes[0] * g.cubes[1] * g.cubes[2]
 	}
 	return sum, nil
 }
 
 func parseLine(line string) (*game, error) {
-	id, sets, found:=strings.Cut(line, ":")
-	if !found{
-		return nil, errors.New( fmt.Sprintf("separator ':' not found in line %q", line))
+	id, sets, found := strings.Cut(line, ":")
+	if !found {
+		return nil, errors.New(fmt.Sprintf("separator ':' not found in line %q", line))
 	}
 
 	var ID int
-	n, err:=fmt.Sscanf(id, "Game %d",&ID)
-	if err!=nil{
+	n, err := fmt.Sscanf(id, "Game %d", &ID)
+	if err != nil {
 		return nil, fmt.Errorf("failed scanning game ID and sets: %v", err)
 	}
-	if n!=1{
+	if n != 1 {
 		return nil, fmt.Errorf("failed scanning game ID and sets expected 1 token instead got %d", n)
 	}
-	
+
 	return &game{
-		ID: ID,
+		ID:    ID,
 		cubes: maxCubes(sets),
 	}, nil
 }
 
-type game struct{
-	ID int
+type game struct {
+	ID    int
 	cubes [3]int
 }
 
@@ -124,12 +124,12 @@ func maxCubes(line string) [3]int {
 	var num []rune
 	for _, c := range line {
 		if unicode.IsDigit(c) {
-			pending=true
+			pending = true
 			num = append(num, c)
 			continue
 		}
 
-		if pending && ( c == 'r' || c == 'g' || c == 'b') {
+		if pending && (c == 'r' || c == 'g' || c == 'b') {
 			if num != nil {
 				v, _ := strconv.Atoi(string(num))
 				cnt := cubes[c]
