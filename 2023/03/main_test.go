@@ -308,6 +308,14 @@ func TestSolvePartTwo(t *testing.T) {
 `,
 			want: 22155,
 		},
+		{
+			in: `35........
+..*.......
+...633*...
+....35....
+`,
+			want: 44310,
+		},
 	}
 
 	for _, tc := range tests {
