@@ -204,12 +204,14 @@ func solvePartTwo(r io.Reader) (int, error) {
 func collectGears(prev, cur, next *line, gears []int) []int {
 	var adj []int
 	for _, pos := range cur.Symbols {
-		for _, num := range prev.Numbers {
-			if isNumberAdjacent(pos, num) {
-				if len(adj) == 2 {
-					return gears
+		if prev != nil {
+			for _, num := range prev.Numbers {
+				if isNumberAdjacent(pos, num) {
+					if len(adj) == 2 {
+						return gears
+					}
+					adj = append(adj, num.Value)
 				}
-				adj = append(adj, num.Value)
 			}
 		}
 		for _, num := range cur.Numbers {
@@ -220,12 +222,14 @@ func collectGears(prev, cur, next *line, gears []int) []int {
 				adj = append(adj, num.Value)
 			}
 		}
-		for _, num := range next.Numbers {
-			if isNumberAdjacent(pos, num) {
-				if len(adj) == 2 {
-					return gears
+		if next != nil {
+			for _, num := range next.Numbers {
+				if isNumberAdjacent(pos, num) {
+					if len(adj) == 2 {
+						return gears
+					}
+					adj = append(adj, num.Value)
 				}
-				adj = append(adj, num.Value)
 			}
 		}
 	}
