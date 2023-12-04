@@ -1,4 +1,4 @@
-module teleivo/advent-of-code/2023/03
+module teleivo/advent-of-code/2023/04
 
 go 1.21.1
 
