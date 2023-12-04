@@ -101,7 +101,6 @@ func isSymbolAdjacent(n number, symbols []int) bool {
 	return false
 }
 
-// TODO Symbols can simply be a slice
 type line struct {
 	Numbers []number
 	Symbols []int
@@ -200,44 +199,34 @@ func solvePartTwo(r io.Reader) (int, error) {
 	return sum, nil
 }
 
-// TODO 4082059 is too low
+// TODO very inefficient as I continue checking numbers even if a symbol is adjacent to 3+
 func collectGears(prev, cur, next *line, gears []int) []int {
-	var adj []int
 	for _, pos := range cur.Symbols {
+		var adj []int
 		if prev != nil {
 			for _, num := range prev.Numbers {
 				if isNumberAdjacent(pos, num) {
-					if len(adj) == 2 {
-						return gears
-					}
 					adj = append(adj, num.Value)
 				}
 			}
 		}
 		for _, num := range cur.Numbers {
 			if isNumberAdjacent(pos, num) {
-				if len(adj) == 2 {
-					return gears
-				}
 				adj = append(adj, num.Value)
 			}
 		}
 		if next != nil {
 			for _, num := range next.Numbers {
 				if isNumberAdjacent(pos, num) {
-					if len(adj) == 2 {
-						return gears
-					}
 					adj = append(adj, num.Value)
 				}
 			}
 		}
+		if len(adj) == 2 {
+			gears = append(gears, adj[0]*adj[1])
+		}
 	}
 
-	if len(adj) == 2 {
-		// fmt.Printf("gear: %d*%d=%d\n", adj[0], adj[1], adj[0]*adj[1])
-		gears = append(gears, adj[0]*adj[1])
-	}
 	return gears
 }
 
