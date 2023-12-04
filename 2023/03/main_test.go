@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestSolve(t *testing.T) {
+func TestSolvePartOne(t *testing.T) {
 	tests := []struct {
 		in   string
 		want int
@@ -122,7 +122,6 @@ func TestSolve(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		t.Log("test input", tc.in)
 		got, err := solvePartOne(strings.NewReader(tc.in))
 		if err != nil {
 			t.Fatalf("expected no error instead got %v", err)
@@ -186,7 +185,7 @@ func TestParseLine(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got, err := parseLine(tc.in)
+		got, err := parseLine(isAnySymbol, tc.in)
 		if err != nil {
 			t.Fatalf("expected no error instead got %v", err)
 		}
@@ -229,10 +228,43 @@ func TestIsSymbol(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := isSymbol(tc.in)
+		got := isAnySymbol(tc.in)
 
 		if got != tc.want {
 			t.Errorf("isSymbol(%q) = %t; want %t", tc.in, got, tc.want)
+		}
+	}
+}
+
+func TestSolvePartTwo(t *testing.T) {
+	tests := []struct {
+		in   string
+		want int
+	}{
+		{
+			in: `467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..`,
+			want: 467835,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Log("test input", tc.in)
+		got, err := solvePartTwo(strings.NewReader(tc.in))
+		if err != nil {
+			t.Fatalf("expected no error instead got %v", err)
+		}
+
+		if got != tc.want {
+			t.Errorf("solvePartOne(%q) = %d; want %d", tc.in, got, tc.want)
 		}
 	}
 }

@@ -44,7 +44,7 @@ func solvePartOne(r io.Reader) (int, error) {
 	var vals []int
 	var prev, cur, next *line
 	for sc.Scan() {
-		l, err := parseLine(sc.Text())
+		l, err := parseLine(isAnySymbol, sc.Text())
 		if err != nil {
 			return 0, err
 		}
@@ -70,7 +70,6 @@ func solvePartOne(r io.Reader) (int, error) {
 }
 
 func collectPartNumbers(prev, cur, next *line, partNumbers []int) []int {
-	fmt.Println("collectPartNumbers", prev, cur, next)
 	for _, n := range cur.Numbers {
 		if (prev != nil && isSymbolAdjacent(n, prev.Symbols)) || isSymbolAdjacent(n, cur.Symbols) || (next != nil && isSymbolAdjacent(n, next.Symbols)) {
 			partNumbers = append(partNumbers, n.Value)
@@ -83,9 +82,7 @@ func collectPartNumbers(prev, cur, next *line, partNumbers []int) []int {
 
 func isSymbolAdjacent(n number, symbols []int) bool {
 	for _, pos := range symbols {
-		fmt.Println("number", n, "symbol pos", pos)
 		if pos >= n.Start-1 && pos <= n.End+1 {
-			fmt.Println("yes")
 			return true
 		}
 		// TODO bail out of symbols loop if we are out of range
@@ -105,7 +102,7 @@ type number struct {
 	End   int
 }
 
-func parseLine(in string) (*line, error) {
+func parseLine(isSymbol func(rune) bool, in string) (*line, error) {
 	res := line{}
 	var num *number
 
@@ -128,7 +125,7 @@ func parseLine(in string) (*line, error) {
 				num = nil
 			}
 
-			if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) {
+			if isSymbol(c) {
 				res.Symbols = append(res.Symbols, i)
 			}
 		}
@@ -147,8 +144,92 @@ func parseLine(in string) (*line, error) {
 	return &res, nil
 }
 
-func isSymbol(c rune) bool {
+func isAnySymbol(c rune) bool {
 	if c != '.' && !unicode.IsSpace(c) && !unicode.IsLetter(c) && !unicode.IsNumber(c) {
+		return true
+	}
+	return false
+}
+
+func isGearSymbol(c rune) bool {
+	if c == '*' {
+		return true
+	}
+	return false
+}
+
+func solvePartTwo(r io.Reader) (int, error) {
+	sc := bufio.NewScanner(r)
+
+	var vals []int
+	var prev, cur, next *line
+	for sc.Scan() {
+		l, err := parseLine(isGearSymbol, sc.Text())
+		if err != nil {
+			return 0, err
+		}
+		if prev == nil && cur == nil { // initial case
+			cur = l
+			continue // we need to see if there is a line after this one to make a decision on the numbers
+		} else if next == nil { // second case
+			next = l
+		} else { // once two lines have been parsed
+			prev = cur
+			cur = next
+			next = l
+		}
+		vals = collectGears(prev, cur, next, vals)
+	}
+	vals = collectGears(cur, next, nil, vals)
+
+	var sum int
+	for _, v := range vals {
+		sum += v
+	}
+	return sum, nil
+}
+
+func collectGears(prev, cur, next *line, gears []int) []int {
+	// fmt.Println("collectGears", prev, cur, next)
+
+	var adj []int
+	for _, pos := range cur.Symbols {
+		for _, num := range prev.Numbers {
+			if isNumberAdjacent(pos, num) {
+				if len(adj) == 2 {
+					return gears
+				}
+				adj = append(adj, num.Value)
+			}
+		}
+		for _, num := range cur.Numbers {
+			if isNumberAdjacent(pos, num) {
+				if len(adj) == 2 {
+					return gears
+				}
+				adj = append(adj, num.Value)
+			}
+		}
+		for _, num := range next.Numbers {
+			if isNumberAdjacent(pos, num) {
+				if len(adj) == 2 {
+					return gears
+				}
+				adj = append(adj, num.Value)
+			}
+		}
+	}
+
+	if len(adj) == 2 {
+		fmt.Printf("gear: %d*%d=%d\n", adj[0], adj[1], adj[0]*adj[1])
+		gears = append(gears, adj[0]*adj[1])
+	}
+	return gears
+}
+
+func isNumberAdjacent(symbolPos int, num number) bool {
+	if symbolPos >= num.Start-1 && symbolPos <= num.End+1 {
+		fmt.Printf("adjacent: symbol at %d to number %v\n", symbolPos, num)
 		return true
 	}
 	return false
