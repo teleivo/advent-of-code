@@ -139,20 +139,23 @@ func TestParseNumbers(t *testing.T) {
 func TestParseMap(t *testing.T) {
 	tests := []struct {
 		in   string
-		want []int
+		want [][]int
 	}{
 		{
-			in: `humidity-to-location map:
+			in: `
+humidity-to-location map:
 1136439539 28187015 34421000
 4130684560 3591141854 62928737
 `,
-			want: []int{
-				1136439539,
-				28187015,
-				34421000,
-				4130684560,
-				3591141854,
-				62928737,
+			want: [][]int{
+				{
+					1136439539,
+					28187015,
+					34421000,
+					4130684560,
+					3591141854,
+					62928737,
+				},
 			},
 		},
 	}

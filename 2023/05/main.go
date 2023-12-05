@@ -70,12 +70,6 @@ func parseInput(r io.Reader) (int, error) {
 	}
 	fmt.Println("map", m)
 
-	// m, err = parseMap(r)
-	// if err != nil {
-	// 	return 0, err
-	// }
-	// fmt.Println("map", m)
-
 	return 0, nil
 }
 
@@ -145,6 +139,7 @@ func parseMap(br *bufio.Reader) ([][]int, error) {
 		_, err = fmt.Sscan(in, &dest, &src, &length)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
+				all = append(all, nums)
 				return all, nil
 			} else {
 				return nil, fmt.Errorf("failed to parse map line %q: %v", in, err)
