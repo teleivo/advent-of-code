@@ -64,11 +64,34 @@ func parseInput(r io.Reader) (int, error) {
 	}
 	fmt.Println("seeds", seeds)
 
-	m, err := parseMap(br)
+	maps, err := parseMaps(br)
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println("map", m)
+	fmt.Println("map", maps)
+
+	// TODO insert into tree
+	var trees []*node
+	for j, m := range maps {
+		var root *node
+		for i, entry := range m {
+			if i == 0 {
+				root = &node{Val: entry[1], Dest: entry[0], RangeLen: entry[2]}
+			} else {
+				insert(root, entry[1], entry[0], entry[2])
+			}
+		}
+		fmt.Println("tree", j, root)
+		trees = append(trees, root)
+	}
+
+	// TODO find soil in tree
+	// todo replace with loop over seeds
+	targetSeed := 79
+	var smallest int
+	for _, n := range trees {
+
+	}
 
 	return 0, nil
 }
@@ -106,9 +129,9 @@ func parseNumbers(r io.Reader) ([]int, error) {
 	return nums, nil
 }
 
-func parseMap(br *bufio.Reader) ([][]int, error) {
-	var all [][]int
-	var nums []int
+func parseMaps(br *bufio.Reader) ([][][3]int, error) {
+	var all [][][3]int
+	var nums [][3]int
 	var pending bool
 	for {
 		in, err := br.ReadString('\n')
@@ -119,12 +142,12 @@ func parseMap(br *bufio.Reader) ([][]int, error) {
 
 		if len(in) > 0 {
 			if unicode.IsLetter(rune(in[0])) {
-				fmt.Println("map description: ", in)
+				// fmt.Println("map description: ", in)
 				// skip map description
 				pending = true
 				continue
 			} else if in == "\n" && pending {
-				fmt.Println("newline while pending: ", in)
+				// fmt.Println("newline while pending: ", in)
 				// newlines after a map description terminate the map
 				pending = false
 				all = append(all, nums)
@@ -145,7 +168,55 @@ func parseMap(br *bufio.Reader) ([][]int, error) {
 				return nil, fmt.Errorf("failed to parse map line %q: %v", in, err)
 			}
 		}
-		nums = append(nums, dest, src, length)
+		nums = append(nums, [3]int{dest, src, length})
+	}
+}
+
+type node struct {
+	Val      int
+	Dest     int
+	RangeLen int
+	Left     *node
+	Right    *node
+}
+
+func insert(n *node, val, dest, rangeLen int) {
+	if n.Val < val {
+		if n.Left == nil {
+			n.Left = &node{Val: val, Dest: dest, RangeLen: rangeLen}
+		} else {
+			insert(n.Left, val, dest, rangeLen)
+		}
+		return
+	}
+
+	if n.Val > val {
+		if n.Right == nil {
+			n.Right = &node{Val: val, Dest: dest, RangeLen: rangeLen}
+		} else {
+			insert(n.Right, val, dest, rangeLen)
+		}
+		return
+	}
+}
+
+func find(n *node, source int) int {
+	if n.Val < source {
+		if n.Left == nil {
+			return source
+		} else {
+			insert(n.Left, val, dest, rangeLen)
+		}
+		return
+	}
+
+	if n.Val > val {
+		if n.Right == nil {
+			n.Right = &node{Val: val, Dest: dest, RangeLen: rangeLen}
+		} else {
+			insert(n.Right, val, dest, rangeLen)
+		}
+		return
 	}
 }
 
