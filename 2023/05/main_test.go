@@ -239,27 +239,6 @@ func TestFind(t *testing.T) {
 	}
 }
 
-//	func TestSolvePartTwo(t *testing.T) {
-//		tests := []struct {
-//			in   string
-//			want int
-//		}{
-//			{
-//				in:   ``,
-//				want: 30,
-//			},
-//		}
-//
-//		for _, tc := range tests {
-//			got, err := solvePartTwo(strings.NewReader(tc.in))
-//			assertNoError(t, err)
-//
-//			if got != tc.want {
-//				t.Errorf("solvePartTwo(%q) = %d; want %d", tc.in, got, tc.want)
-//			}
-//		}
-//	}
-
 func assertError(t *testing.T, err error) {
 	if err == nil {
 		t.Fatal("expected error instead got nil instead", err)
@@ -280,6 +259,6 @@ func assertEquals(t *testing.T, method string, in, want, got any) {
 
 func assertDeepEquals(t *testing.T, method string, in, want, got any) {
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("%s(%q) mismatch (-want +got):\n%s", in, method, diff)
+		t.Errorf("%s(%q) mismatch (-want +got):\n%s", method, in, diff)
 	}
 }
