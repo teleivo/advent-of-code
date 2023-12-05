@@ -80,6 +80,34 @@ func TestParseNumbers(t *testing.T) {
 	}
 }
 
+func TestParseMap(t *testing.T) {
+	tests := []struct {
+		in   string
+		want []int
+	}{
+		{
+			in: `1136439539 28187015 34421000
+4130684560 3591141854 62928737
+`,
+			want: []int{
+				1136439539,
+				28187015,
+				34421000,
+				4130684560,
+				3591141854,
+				62928737,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		got, err := parseMap(strings.NewReader(tc.in))
+		assertNoError(t, err)
+
+		assertDeepEquals(t, "parseMap", tc.in, tc.want, got)
+	}
+}
+
 //	func TestSolvePartTwo(t *testing.T) {
 //		tests := []struct {
 //			in   string
