@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 func main() {
@@ -54,19 +55,41 @@ func solvePartOne(r io.Reader) (int, error) {
 	return 0, nil
 }
 
-func parseSeeds(r io.Reader) ([]int, error) {
-
+func parseInput(r io.Reader) (int, error) {
 	scanner := bufio.NewScanner(r)
-	if scanner.Scan() {
-		_, seeds, found := strings.Cut(scanner.Text(), ": ")
-		if !found {
-			return nil, fmt.Errorf("failed to parse seeds in: %q", scanner.Text())
-		}
 
-		return parseNumbers(strings.NewReader(seeds))
+	if !scanner.Scan() {
+		return 0, errors.New("failed to parse seeds, nothing to parse")
+	}
+	seeds, err := parseSeeds(scanner.Text())
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println("seeds", seeds)
+
+	m, err := parseMap(r)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println("map", m)
+
+	// m, err = parseMap(r)
+	// if err != nil {
+	// 	return 0, err
+	// }
+	// fmt.Println("map", m)
+
+	return 0, nil
+}
+
+func parseSeeds(in string) ([]int, error) {
+	_, seeds, found := strings.Cut(in, ": ")
+	if !found {
+		return nil, fmt.Errorf("failed to parse seeds in: %q", in)
 	}
 
-	return nil, errors.New("failed to parse seeds: did not find ': '")
+	// TODO I wanted to make parseNumbers reusable but sharing the reader is not smooth so far
+	return parseNumbers(strings.NewReader(seeds))
 }
 
 func parseNumbers(r io.Reader) ([]int, error) {
@@ -91,6 +114,11 @@ func parseMap(r io.Reader) ([]int, error) {
 	scanner := bufio.NewScanner(r)
 	var nums []int
 	for scanner.Scan() {
+		fmt.Println("parseMap", scanner.Text())
+		if len(scanner.Text()) > 0 && !unicode.IsDigit(rune(scanner.Text()[0])) {
+			// skip map description
+			continue
+		}
 		var src, dest, length int
 		_, err := fmt.Sscan(scanner.Text(), &dest, &src, &length)
 		if err != nil {
@@ -103,6 +131,7 @@ func parseMap(r io.Reader) ([]int, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("failed to parse map: %v", err)
 	}
+	fmt.Println("parseMap", nums)
 	return nums, nil
 }
 
