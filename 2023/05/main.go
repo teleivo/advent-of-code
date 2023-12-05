@@ -56,18 +56,15 @@ func solvePartOne(r io.Reader) (int, error) {
 }
 
 func parseInput(r io.Reader) (int, error) {
-	scanner := bufio.NewScanner(r)
+	br := bufio.NewReader(r)
 
-	if !scanner.Scan() {
-		return 0, errors.New("failed to parse seeds, nothing to parse")
-	}
-	seeds, err := parseSeeds(scanner.Text())
+	seeds, err := parseSeeds(br)
 	if err != nil {
 		return 0, err
 	}
 	fmt.Println("seeds", seeds)
 
-	m, err := parseMap(r)
+	m, err := parseMap(br)
 	if err != nil {
 		return 0, err
 	}
@@ -82,7 +79,12 @@ func parseInput(r io.Reader) (int, error) {
 	return 0, nil
 }
 
-func parseSeeds(in string) ([]int, error) {
+func parseSeeds(r *bufio.Reader) ([]int, error) {
+	in, err := r.ReadString('\n')
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse seeds in: %q", in)
+	}
+
 	_, seeds, found := strings.Cut(in, ": ")
 	if !found {
 		return nil, fmt.Errorf("failed to parse seeds in: %q", in)
@@ -110,29 +112,46 @@ func parseNumbers(r io.Reader) ([]int, error) {
 	return nums, nil
 }
 
-func parseMap(r io.Reader) ([]int, error) {
-	scanner := bufio.NewScanner(r)
+func parseMap(br *bufio.Reader) ([][]int, error) {
+	var all [][]int
 	var nums []int
-	for scanner.Scan() {
-		fmt.Println("parseMap", scanner.Text())
-		if len(scanner.Text()) > 0 && !unicode.IsDigit(rune(scanner.Text()[0])) {
-			// skip map description
-			continue
-		}
-		var src, dest, length int
-		_, err := fmt.Sscan(scanner.Text(), &dest, &src, &length)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse map line %q: %v", scanner.Text(), err)
+	var pending bool
+	for {
+		in, err := br.ReadString('\n')
+		fmt.Printf("%q\n", in)
+		if err != nil && !errors.Is(err, io.EOF) {
+			return nil, fmt.Errorf("failed to parse map line %q: %v", in, err)
 		}
 
+		if len(in) > 0 {
+			if unicode.IsLetter(rune(in[0])) {
+				fmt.Println("map description: ", in)
+				// skip map description
+				pending = true
+				continue
+			} else if in == "\n" && pending {
+				fmt.Println("newline while pending: ", in)
+				// newlines after a map description terminate the map
+				pending = false
+				all = append(all, nums)
+				nums = nil
+				continue
+			} else if in == "\n" {
+				continue
+			}
+		}
+
+		var src, dest, length int
+		_, err = fmt.Sscan(in, &dest, &src, &length)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return all, nil
+			} else {
+				return nil, fmt.Errorf("failed to parse map line %q: %v", in, err)
+			}
+		}
 		nums = append(nums, dest, src, length)
 	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to parse map: %v", err)
-	}
-	fmt.Println("parseMap", nums)
-	return nums, nil
 }
 
 func solvePartTwo(r io.Reader) (int, error) {

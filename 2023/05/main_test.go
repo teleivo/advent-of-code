@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"strings"
 	"testing"
 
@@ -85,14 +86,17 @@ func TestParseSeeds(t *testing.T) {
 		in   string
 		want []int
 	}{
+		// TODO without the newline I get the io.EOF back in this test. how can I still use a
+		// scanner while sharing the same (buffered) reader
 		{
-			in:   `seeds: 79 14 55 13`,
+			in: `seeds: 79 14 55 13
+			`,
 			want: []int{79, 14, 55, 13},
 		},
 	}
 
 	for _, tc := range tests {
-		got, err := parseSeeds(tc.in)
+		got, err := parseSeeds(bufio.NewReader(strings.NewReader(tc.in)))
 		assertNoError(t, err)
 
 		assertDeepEquals(t, "parseSeeds", tc.in, tc.want, got)
@@ -154,7 +158,7 @@ func TestParseMap(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got, err := parseMap(strings.NewReader(tc.in))
+		got, err := parseMap(bufio.NewReader(strings.NewReader(tc.in)))
 		assertNoError(t, err)
 
 		assertDeepEquals(t, "parseMap", tc.in, tc.want, got)
