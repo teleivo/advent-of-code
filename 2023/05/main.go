@@ -63,35 +63,30 @@ func parseInput(r io.Reader) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println("seeds", seeds)
 
 	// TODO parse them into the tree's directly
 	maps, err := parseMaps(br)
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println("map", maps)
 
 	nodes := mapsToNodes(maps)
 
 	smallest := math.MaxInt
 	for _, seed := range seeds {
 		var target = seed
-		fmt.Println("looking for seed", seed)
 		for _, n := range nodes {
 			target = find(n, target)
-			fmt.Println("found ", target)
 		}
 		smallest = min(smallest, target)
 	}
 
-	fmt.Println("solution here", smallest)
 	return smallest, nil
 }
 
 func mapsToNodes(maps [][][3]int) []*node {
 	var nodes []*node
-	for j, m := range maps {
+	for _, m := range maps {
 		var root *node
 		for i, entry := range m {
 			if i == 0 {
@@ -100,7 +95,6 @@ func mapsToNodes(maps [][][3]int) []*node {
 				insert(root, entry[1], entry[0], entry[2])
 			}
 		}
-		fmt.Println("tree", j, root)
 		nodes = append(nodes, root)
 	}
 	return nodes
@@ -144,19 +138,16 @@ func parseMaps(br *bufio.Reader) ([][][3]int, error) {
 	var pending bool
 	for {
 		in, err := br.ReadString('\n')
-		fmt.Printf("%q\n", in)
 		if err != nil && !errors.Is(err, io.EOF) {
 			return nil, fmt.Errorf("failed to parse map line %q: %v", in, err)
 		}
 
 		if len(in) > 0 {
 			if unicode.IsLetter(rune(in[0])) {
-				// fmt.Println("map description: ", in)
 				// skip map description
 				pending = true
 				continue
 			} else if in == "\n" && pending {
-				// fmt.Println("newline while pending: ", in)
 				// newlines after a map description terminate the map
 				pending = false
 				all = append(all, nums)
@@ -231,5 +222,36 @@ func find(n *node, source int) int {
 }
 
 func solvePartTwo(r io.Reader) (int, error) {
-	return 0, nil
+	br := bufio.NewReader(r)
+
+	seeds, err := parseSeeds(br)
+	if err != nil {
+		return 0, err
+	}
+
+	var seedRanges [][2]int
+	for i := 0; i < len(seeds); i += 2 {
+		seedRanges = append(seedRanges, [2]int{seeds[i], seeds[i+1]})
+	}
+
+	// TODO parse them into the tree's directly
+	maps, err := parseMaps(br)
+	if err != nil {
+		return 0, err
+	}
+
+	nodes := mapsToNodes(maps)
+
+	smallest := math.MaxInt
+	for _, seedRange := range seedRanges {
+		for seed := seedRange[0]; seed < seedRange[0]+seedRange[1]; seed++ {
+			var target = seed
+			for _, n := range nodes {
+				target = find(n, target)
+			}
+			smallest = min(smallest, target)
+		}
+	}
+
+	return smallest, nil
 }
