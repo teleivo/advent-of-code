@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -52,7 +53,7 @@ func run(w io.Writer, args []string) error {
 
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
-	return 0, nil
+	return parseInput(r)
 }
 
 func parseInput(r io.Reader) (int, error) {
@@ -64,38 +65,46 @@ func parseInput(r io.Reader) (int, error) {
 	}
 	fmt.Println("seeds", seeds)
 
+	// TODO parse them into the tree's directly
 	maps, err := parseMaps(br)
 	if err != nil {
 		return 0, err
 	}
 	fmt.Println("map", maps)
 
-	// TODO insert into tree
-	var trees []*node
+	nodes := mapsToNodes(maps)
+
+	smallest := math.MaxInt
+	for _, seed := range seeds {
+		var target = seed
+		fmt.Println("looking for seed", seed)
+		for _, n := range nodes {
+			target = find(n, target)
+			fmt.Println("found ", target)
+		}
+		smallest = min(smallest, target)
+	}
+
+	fmt.Println("solution here", smallest)
+	return smallest, nil
+}
+
+func mapsToNodes(maps [][][3]int) []*node {
+	var nodes []*node
 	for j, m := range maps {
 		var root *node
 		for i, entry := range m {
 			if i == 0 {
-				root = &node{Val: entry[1], Dest: entry[0], RangeLen: entry[2]}
+				root = &node{Source: entry[1], Dest: entry[0], RangeLen: entry[2]}
 			} else {
 				insert(root, entry[1], entry[0], entry[2])
 			}
 		}
 		fmt.Println("tree", j, root)
-		trees = append(trees, root)
+		nodes = append(nodes, root)
 	}
-
-	// TODO find soil in tree
-	// todo replace with loop over seeds
-	targetSeed := 79
-	var smallest int
-	for _, n := range trees {
-
-	}
-
-	return 0, nil
+	return nodes
 }
-
 func parseSeeds(r *bufio.Reader) ([]int, error) {
 	in, err := r.ReadString('\n')
 	if err != nil {
@@ -173,51 +182,52 @@ func parseMaps(br *bufio.Reader) ([][][3]int, error) {
 }
 
 type node struct {
-	Val      int
+	Source   int
 	Dest     int
 	RangeLen int
 	Left     *node
 	Right    *node
 }
 
-func insert(n *node, val, dest, rangeLen int) {
-	if n.Val < val {
+func insert(n *node, source, dest, rangeLen int) {
+	if n.Source > source {
 		if n.Left == nil {
-			n.Left = &node{Val: val, Dest: dest, RangeLen: rangeLen}
+			n.Left = &node{Source: source, Dest: dest, RangeLen: rangeLen}
 		} else {
-			insert(n.Left, val, dest, rangeLen)
+			insert(n.Left, source, dest, rangeLen)
 		}
 		return
 	}
 
-	if n.Val > val {
+	if n.Source < source {
 		if n.Right == nil {
-			n.Right = &node{Val: val, Dest: dest, RangeLen: rangeLen}
+			n.Right = &node{Source: source, Dest: dest, RangeLen: rangeLen}
 		} else {
-			insert(n.Right, val, dest, rangeLen)
+			insert(n.Right, source, dest, rangeLen)
 		}
 		return
 	}
 }
 
 func find(n *node, source int) int {
-	if n.Val < source {
+	if n.Source <= source &&
+		source < n.Source+n.RangeLen {
+		return source - n.Source + n.Dest
+	}
+	if n.Source > source {
 		if n.Left == nil {
 			return source
-		} else {
-			insert(n.Left, val, dest, rangeLen)
 		}
-		return
+		return find(n.Left, source)
+	}
+	if n.Source < source {
+		if n.Right == nil {
+			return source
+		}
+		return find(n.Right, source)
 	}
 
-	if n.Val > val {
-		if n.Right == nil {
-			n.Right = &node{Val: val, Dest: dest, RangeLen: rangeLen}
-		} else {
-			insert(n.Right, val, dest, rangeLen)
-		}
-		return
-	}
+	return source
 }
 
 func solvePartTwo(r io.Reader) (int, error) {

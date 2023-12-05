@@ -171,6 +171,74 @@ humidity-to-location map:
 	}
 }
 
+func TestInsert(t *testing.T) {
+
+	root := &node{Source: 98, Dest: 50, RangeLen: 2}
+	want := &node{Source: 98, Dest: 50, RangeLen: 2, Left: &node{Source: 50, Dest: 52, RangeLen: 48}}
+
+	insert(root, 50, 52, 48)
+
+	if diff := cmp.Diff(want, root); diff != "" {
+		t.Errorf("mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestFind(t *testing.T) {
+	tests := []struct {
+		mapNode *node
+		source  int
+		want    int
+	}{
+		{
+			mapNode: &node{
+				Source:   98,
+				Dest:     50,
+				RangeLen: 2,
+				Left: &node{
+					Source:   50,
+					Dest:     52,
+					RangeLen: 48,
+				},
+			},
+			source: 79,
+			want:   81,
+		},
+		{
+			mapNode: &node{
+				Source:   98,
+				Dest:     50,
+				RangeLen: 2,
+				Left: &node{
+					Source:   50,
+					Dest:     52,
+					RangeLen: 48,
+				},
+			},
+			source: 14,
+			want:   14,
+		},
+		{
+			mapNode: &node{
+				Source:   98,
+				Dest:     50,
+				RangeLen: 2,
+				Left: &node{
+					Source:   50,
+					Dest:     52,
+					RangeLen: 48,
+				},
+			},
+			source: 55,
+			want:   57,
+		},
+	}
+
+	for _, tc := range tests {
+		got := find(tc.mapNode, tc.source)
+		assertEquals(t, "find", tc.mapNode, tc.want, got)
+	}
+}
+
 //	func TestSolvePartTwo(t *testing.T) {
 //		tests := []struct {
 //			in   string
