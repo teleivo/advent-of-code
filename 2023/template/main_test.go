@@ -21,10 +21,7 @@ func TestSolvePartOne(t *testing.T) {
 	for _, tc := range tests {
 		got, err := solvePartTwo(strings.NewReader(tc.in))
 		assertNoError(t, err)
-
-		if got != tc.want {
-			t.Errorf("solvePartOne(%q) = %d; want %d", tc.in, got, tc.want)
-		}
+		assertEquals(t, "solvePartOne", tc.in, tc.want, got)
 	}
 }
 
@@ -42,10 +39,7 @@ func TestSolvePartTwo(t *testing.T) {
 	for _, tc := range tests {
 		got, err := solvePartTwo(strings.NewReader(tc.in))
 		assertNoError(t, err)
-
-		if got != tc.want {
-			t.Errorf("solvePartTwo(%q) = %d; want %d", tc.in, got, tc.want)
-		}
+		assertEquals(t, "solvePartTwo", tc.in, tc.want, got)
 	}
 }
 
