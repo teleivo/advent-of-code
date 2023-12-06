@@ -65,14 +65,28 @@ func solvePartOne(r io.Reader) (int, error) {
 
 	var result int
 	for i, duration := range durations {
-		// TODO simplify with handling the odd case
 		var sum int
-		for j := 0; j < duration+1; j++ {
+		// only loop through half of the possible hold durations to utilize the symmetry in
+		// distance traveled = hold duration * (duration - hold duration)
+		maxHoldDuration := duration / 2
+		if isEven(duration) {
+			maxHoldDuration -= 1
+		}
+		for j := 0; j <= maxHoldDuration; j++ {
 			if isBreakingRecord(j, duration, distances[i]) {
 				sum++
 			}
 		}
 
+		sum *= 2
+		// if the total possible hold durations are odd check the extra asymmetric case
+		if isEven(duration) {
+			if isBreakingRecord(maxHoldDuration+1, duration, distances[i]) {
+				sum++
+			}
+		}
+
+		fmt.Println("duration", duration, "maxHoldDuration", maxHoldDuration, "sum", sum)
 		if result == 0 {
 			result = sum
 		} else {
@@ -81,6 +95,10 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 
 	return result, nil
+}
+
+func isEven(n int) bool {
+	return n%2 == 0
 }
 
 func isBreakingRecord(timeHeld, raceDuration, recordDistance int) bool {
