@@ -43,9 +43,15 @@ func TestSolvePartTwo(t *testing.T) {
 	}
 }
 
+func assertError(t *testing.T, err error) {
+	if err == nil {
+		t.Fatal("expected error instead got nil instead", err)
+	}
+}
+
 func assertNoError(t *testing.T, err error) {
 	if err != nil {
-		t.Fatalf("expected no error instead got %v", err)
+		t.Fatalf("expected no error instead got: %q", err)
 	}
 }
 
@@ -57,6 +63,6 @@ func assertEquals(t *testing.T, method string, in, want, got any) {
 
 func assertDeepEquals(t *testing.T, method string, in, want, got any) {
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("%s(%q) mismatch (-want +got):\n%s", in, method, diff)
+		t.Errorf("%s(%q) mismatch (-want +got):\n%s", method, in, diff)
 	}
 }
