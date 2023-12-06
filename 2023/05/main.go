@@ -99,6 +99,7 @@ func mapsToNodes(maps [][][3]int) []*node {
 	}
 	return nodes
 }
+
 func parseSeeds(r *bufio.Reader) ([]int, error) {
 	in, err := r.ReadString('\n')
 	if err != nil {
