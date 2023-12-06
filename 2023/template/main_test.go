@@ -62,7 +62,7 @@ func assertEquals(t *testing.T, method string, in, want, got any) {
 }
 
 func assertDeepEquals(t *testing.T, method string, in, want, got any) {
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("%s(%q) mismatch (-want +got):\n%s", method, in, diff)
 	}
 }
