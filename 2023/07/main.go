@@ -62,7 +62,7 @@ func solvePartOne(r io.Reader) (int, error) {
 
 	// group hands by hand type
 	// by using an array of handType to hands
-	var types [five][]hand
+	var types [five + 1][]hand
 	for _, hand := range hands {
 		t := categorizeHand(hand.Hand)
 		types[t] = append(types[t], hand)
