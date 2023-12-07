@@ -57,15 +57,11 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 	fmt.Println(hands)
 
-	types := make(map[handType][]hand)
+	// array of handType to hands
+	var types [five][]hand
 	for _, hand := range hands {
 		t := categorizeHand(hand.Hand)
-		fmt.Println("hand", hand.Hand, "type", t)
-		// if _, ok := types[t]; !ok {
 		types[t] = append(types[t], hand)
-		// } else {
-		// 	types
-		// }
 	}
 	fmt.Println(types)
 
