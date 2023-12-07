@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -47,7 +51,34 @@ func run(w io.Writer, args []string) error {
 
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
+	hands, err := parseHands(r)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println(hands)
 	return 0, nil
+}
+
+type hand struct {
+	Hand string
+	Bid  int
+}
+
+func parseHands(r io.Reader) ([]hand, error) {
+	s := bufio.NewScanner(r)
+	var hands []hand
+	for s.Scan() {
+		hd, bid, found := strings.Cut(s.Text(), " ")
+		if !found {
+			return nil, errors.New(fmt.Sprintf("failed to split %q", s.Text()))
+		}
+		v, err := strconv.Atoi(bid)
+		if !found {
+			return nil, fmt.Errorf("failed to parse bid: %v", err)
+		}
+		hands = append(hands, hand{Hand: hd, Bid: v})
+	}
+	return hands, nil
 }
 
 // solvePartOne solves part two of the puzzle.
