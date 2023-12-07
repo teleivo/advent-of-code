@@ -56,8 +56,19 @@ func solvePartOne(r io.Reader) (int, error) {
 		return 0, err
 	}
 	fmt.Println(hands)
+	fmt.Println(A)
 	return 0, nil
 }
+
+type card int
+
+const (
+	A card = iota + 10
+	J
+	K
+	Q
+	T
+)
 
 type hand struct {
 	Hand string
