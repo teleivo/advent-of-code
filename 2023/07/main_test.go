@@ -168,6 +168,15 @@ func TestCardFrequenciesPartTwo(t *testing.T) {
 				'K': 5,
 			},
 		},
+		{
+			in: `T45J3`,
+			want: map[rune]int{
+				'3': 1,
+				'4': 1,
+				'5': 1,
+				'T': 2,
+			},
+		},
 	}
 
 	for _, tc := range tests {

@@ -348,9 +348,9 @@ func cardFrequenciesPartTwo(hand string) map[rune]int {
 
 		if _, ok := result[card]; !ok {
 			result[card] = 1
-			continue
+		} else {
+			result[card]++
 		}
-		result[card]++
 
 		if result[card] > maxCount {
 			maxCount = result[card]
