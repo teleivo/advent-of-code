@@ -57,9 +57,17 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 	fmt.Println(hands)
 
-	// for _, hand := range hands {
-	// 	// freq := cardFrequencies(hand.Hand)
-	// }
+	types := make(map[handType][]hand)
+	for _, hand := range hands {
+		t := categorizeHand(hand.Hand)
+		fmt.Println("hand", hand.Hand, "type", t)
+		// if _, ok := types[t]; !ok {
+		types[t] = append(types[t], hand)
+		// } else {
+		// 	types
+		// }
+	}
+	fmt.Println(types)
 
 	return 0, nil
 }
@@ -77,13 +85,13 @@ const (
 type handType int
 
 const (
-	five handType = iota
-	four
-	fullHouse
-	three
-	two
+	high handType = iota
 	one
-	high
+	two
+	three
+	fullHouse
+	four
+	five
 )
 
 type hand struct {
