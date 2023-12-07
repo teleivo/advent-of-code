@@ -58,16 +58,16 @@ func solvePartOne(r io.Reader) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println(hands)
+	// fmt.Println(hands)
 
 	// group hands by hand type
 	// by using an array of handType to hands
 	var types [five + 1][]hand
 	for _, hand := range hands {
-		t := categorizeHand(hand.Hand)
+		t := categorizeHandPartOne(hand.Hand)
 		types[t] = append(types[t], hand)
 	}
-	fmt.Println(types)
+	// fmt.Println(types)
 
 	var sum int
 	rank := 1
@@ -76,7 +76,7 @@ func solvePartOne(r io.Reader) (int, error) {
 
 		for _, hand := range hands {
 			sum += rank * hand.Bid
-			fmt.Println("rank", rank, "hand", hand, "sum", sum)
+			// fmt.Println("rank", rank, "hand", hand, "sum", sum)
 			rank++
 		}
 	}
@@ -128,8 +128,8 @@ func parseHands(r io.Reader) ([]hand, error) {
 	return hands, nil
 }
 
-func categorizeHand(hand string) handType {
-	frequencies := cardFrequencies(hand)
+func categorizeHandPartOne(hand string) handType {
+	frequencies := cardFrequenciesPartOne(hand)
 	var triple bool
 	var pairs int
 	for _, freq := range frequencies {
@@ -207,7 +207,7 @@ func runeToIntPartOne(r rune) int {
 	return v
 }
 
-func cardFrequencies(hand string) map[rune]int {
+func cardFrequenciesPartOne(hand string) map[rune]int {
 	result := make(map[rune]int)
 	for _, card := range hand {
 		if _, ok := result[card]; !ok {
@@ -225,25 +225,25 @@ func solvePartTwo(r io.Reader) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println(hands)
+	// fmt.Println(hands)
 
 	// group hands by hand type
 	// by using an array of handType to hands
 	var types [five + 1][]hand
 	for _, hand := range hands {
-		t := categorizeHand(hand.Hand)
+		t := categorizeHandPartTwo(hand.Hand)
 		types[t] = append(types[t], hand)
 	}
-	fmt.Println(types)
+	// fmt.Println(types)
 
 	var sum int
 	rank := 1
 	for _, hands := range types {
-		slices.SortFunc(hands, compareHandsPartOne)
+		slices.SortFunc(hands, compareHandsPartTwo)
 
 		for _, hand := range hands {
 			sum += rank * hand.Bid
-			fmt.Println("rank", rank, "hand", hand, "sum", sum)
+			// fmt.Println("rank", rank, "hand", hand, "sum", sum)
 			rank++
 		}
 	}
@@ -295,4 +295,69 @@ func runeToIntPartTwo(r rune) int {
 		v = 10
 	}
 	return v
+}
+
+func categorizeHandPartTwo(hand string) handType {
+	frequencies := cardFrequenciesPartTwo(hand)
+	var triple bool
+	var pairs int
+	for _, freq := range frequencies {
+		if freq == 5 {
+			return five
+		}
+		if freq == 4 {
+			return four
+		}
+		if freq == 3 {
+			triple = true
+			continue
+		}
+		if freq == 2 {
+			pairs++
+		}
+	}
+	if triple && pairs == 1 {
+		return fullHouse
+	}
+	if triple {
+		return three
+	}
+	if pairs == 2 {
+		return two
+	}
+	if pairs == 1 {
+		return one
+	}
+	return high
+}
+
+func cardFrequenciesPartTwo(hand string) map[rune]int {
+	if !strings.ContainsRune(hand, 'J') {
+		return cardFrequenciesPartOne(hand)
+	}
+
+	var maxRune rune
+	var maxCount int
+	var jokerCount int
+	result := make(map[rune]int)
+	for _, card := range hand {
+		if card == 'J' {
+			jokerCount++
+			continue
+		}
+
+		if _, ok := result[card]; !ok {
+			result[card] = 1
+			continue
+		}
+		result[card]++
+
+		if result[card] > maxCount {
+			maxCount = result[card]
+			maxRune = card
+		}
+	}
+	result[maxRune] += jokerCount
+
+	return result
 }

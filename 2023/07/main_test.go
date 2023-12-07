@@ -24,7 +24,7 @@ func TestSolvePartOne(t *testing.T) {
 
 func TestSolvePartTwo(t *testing.T) {
 	file := "testdata/example"
-	want := 6440
+	want := 5905
 	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)
@@ -108,11 +108,11 @@ func TestCategorizeHand(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := categorizeHand(tc.in)
+		got := categorizeHandPartOne(tc.in)
 		assertDeepEquals(t, "categorizeHand", tc.in, tc.want, got)
 	}
 }
-func TestCardFrequencies(t *testing.T) {
+func TestCardFrequenciesPartOne(t *testing.T) {
 	tests := []struct {
 		in   string
 		want map[rune]int
@@ -129,8 +129,50 @@ func TestCardFrequencies(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := cardFrequencies(tc.in)
-		assertDeepEquals(t, "cardFrequencies", tc.in, tc.want, got)
+		got := cardFrequenciesPartOne(tc.in)
+		assertDeepEquals(t, "cardFrequenciesPartTwo", tc.in, tc.want, got)
+	}
+}
+
+func TestCardFrequenciesPartTwo(t *testing.T) {
+	tests := []struct {
+		in   string
+		want map[rune]int
+	}{
+		{
+			in: `32T3K`,
+			want: map[rune]int{
+				'3': 2,
+				'2': 1,
+				'T': 1,
+				'K': 1,
+			},
+		},
+		{
+			in: `T55J5`,
+			want: map[rune]int{
+				'5': 4,
+				'T': 1,
+			},
+		},
+		{
+			in: `KTJJT`,
+			want: map[rune]int{
+				'K': 1,
+				'T': 4,
+			},
+		},
+		{
+			in: `KKKJK`,
+			want: map[rune]int{
+				'K': 5,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		got := cardFrequenciesPartTwo(tc.in)
+		assertDeepEquals(t, "cardFrequenciesPartTwo", tc.in, tc.want, got)
 	}
 }
 
