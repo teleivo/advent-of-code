@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -8,22 +9,18 @@ import (
 )
 
 func TestSolvePartOne(t *testing.T) {
-	t.Skip()
-	tests := []struct {
-		in   string
-		want int
-	}{
-		{
-			in:   ``,
-			want: 30,
-		},
+	file := "testdata/example"
+	want := 6440
+	f1, err := os.Open(file)
+	if err != nil {
+		t.Fatalf("failed to open file %q: %v", file, err)
 	}
+	defer f1.Close()
 
-	for _, tc := range tests {
-		got, err := solvePartTwo(strings.NewReader(tc.in))
-		assertNoError(t, err)
-		assertEquals(t, "solvePartOne", tc.in, tc.want, got)
-	}
+	got, err := solvePartOne(f1)
+
+	assertNoError(t, err)
+	assertEquals(t, "solvePartOne", file, want, got)
 }
 
 func TestSolvePartTwo(t *testing.T) {
@@ -45,7 +42,34 @@ func TestSolvePartTwo(t *testing.T) {
 	}
 }
 
-func TestCategoryzeCard(t *testing.T) {
+func TestCompareHands(t *testing.T) {
+	tests := []struct {
+		a    hand
+		b    hand
+		want int
+	}{
+		{
+			a:    hand{Hand: `32T3K`},
+			b:    hand{Hand: `32T3K`},
+			want: 0,
+		},
+		{
+			a:    hand{Hand: `2AAAA`},
+			b:    hand{Hand: `33332`},
+			want: -1,
+		},
+	}
+
+	for _, tc := range tests {
+		got := compareHands(tc.a, tc.b)
+
+		if diff := cmp.Diff(got, tc.want); diff != "" {
+			t.Errorf("%s(%q, %q) mismatch (-want +got):\n%s", "CompareHands", tc.a, tc.b, diff)
+		}
+	}
+}
+
+func TestCategorizeHand(t *testing.T) {
 	tests := []struct {
 		in   string
 		want handType

@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 func main() {
@@ -57,7 +60,8 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 	fmt.Println(hands)
 
-	// array of handType to hands
+	// group hands by hand type
+	// by using an array of handType to hands
 	var types [five][]hand
 	for _, hand := range hands {
 		t := categorizeHand(hand.Hand)
@@ -65,7 +69,19 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 	fmt.Println(types)
 
-	return 0, nil
+	var sum int
+	rank := 1
+	for _, hands := range types {
+		slices.SortFunc(hands, compareHands)
+
+		for _, hand := range hands {
+			sum += rank * hand.Bid
+			fmt.Println("rank", rank, "hand", hand, "sum", sum)
+			rank++
+		}
+	}
+
+	return sum, nil
 }
 
 type card int
@@ -144,6 +160,52 @@ func categorizeHand(hand string) handType {
 		return one
 	}
 	return high
+}
+
+func compareHands(a, b hand) int {
+
+	as := a.Hand
+	bs := b.Hand
+	for {
+		ar, an := utf8.DecodeRuneInString(as)
+		br, bn := utf8.DecodeRuneInString(bs)
+
+		// assuming both strings are of equal length
+		if an == 0 {
+			return 0
+		}
+
+		cmp := runeToInt(ar) - runeToInt(br)
+		if cmp != 0 {
+			return cmp
+		}
+
+		// advance in hand
+		as = as[an:]
+		bs = bs[bn:]
+	}
+}
+
+func runeToInt(r rune) int {
+	if unicode.IsDigit(r) {
+		return int(r - '0')
+	}
+
+	// A, K, Q, J, T are not ordered in their natural (alphabetical) order
+	var v int
+	switch r {
+	case 'A':
+		v = 14
+	case 'K':
+		v = 13
+	case 'Q':
+		v = 12
+	case 'J':
+		v = 11
+	case 'T':
+		v = 10
+	}
+	return v
 }
 
 func cardFrequencies(hand string) map[rune]int {
