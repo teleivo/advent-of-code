@@ -1,46 +1,40 @@
 package main
 
 import (
-	"strings"
+	"os"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
 
 func TestSolvePartOne(t *testing.T) {
-	tests := []struct {
-		in   string
-		want int
-	}{
-		{
-			in:   ``,
-			want: 30,
-		},
+	file := "testdata/example"
+	want := 6440
+	f, err := os.Open(file)
+	if err != nil {
+		t.Fatalf("failed to open file %q: %v", file, err)
 	}
+	defer f.Close()
 
-	for _, tc := range tests {
-		got, err := solvePartTwo(strings.NewReader(tc.in))
-		assertNoError(t, err)
-		assertEquals(t, "solvePartOne", tc.in, tc.want, got)
-	}
+	got, err := solvePartOne(f)
+
+	assertNoError(t, err)
+	assertEquals(t, "solvePartOne", file, want, got)
 }
 
 func TestSolvePartTwo(t *testing.T) {
-	tests := []struct {
-		in   string
-		want int
-	}{
-		{
-			in:   ``,
-			want: 30,
-		},
+	file := "testdata/example"
+	want := 5905
+	f, err := os.Open(file)
+	if err != nil {
+		t.Fatalf("failed to open file %q: %v", file, err)
 	}
+	defer f.Close()
 
-	for _, tc := range tests {
-		got, err := solvePartTwo(strings.NewReader(tc.in))
-		assertNoError(t, err)
-		assertEquals(t, "solvePartTwo", tc.in, tc.want, got)
-	}
+	got, err := solvePartTwo(f)
+
+	assertNoError(t, err)
+	assertEquals(t, "solvePartTwo", file, want, got)
 }
 
 func assertError(t *testing.T, err error) {
