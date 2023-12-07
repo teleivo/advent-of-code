@@ -72,7 +72,7 @@ func solvePartOne(r io.Reader) (int, error) {
 	var sum int
 	rank := 1
 	for _, hands := range types {
-		slices.SortFunc(hands, compareHands)
+		slices.SortFunc(hands, compareHandsPartOne)
 
 		for _, hand := range hands {
 			sum += rank * hand.Bid
@@ -162,8 +162,7 @@ func categorizeHand(hand string) handType {
 	return high
 }
 
-func compareHands(a, b hand) int {
-
+func compareHandsPartOne(a, b hand) int {
 	as := a.Hand
 	bs := b.Hand
 	for {
@@ -175,7 +174,7 @@ func compareHands(a, b hand) int {
 			return 0
 		}
 
-		cmp := runeToInt(ar) - runeToInt(br)
+		cmp := runeToIntPartOne(ar) - runeToIntPartOne(br)
 		if cmp != 0 {
 			return cmp
 		}
@@ -186,7 +185,7 @@ func compareHands(a, b hand) int {
 	}
 }
 
-func runeToInt(r rune) int {
+func runeToIntPartOne(r rune) int {
 	if unicode.IsDigit(r) {
 		return int(r - '0')
 	}
@@ -222,5 +221,78 @@ func cardFrequencies(hand string) map[rune]int {
 
 // solvePartOne solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
-	return 0, nil
+	hands, err := parseHands(r)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println(hands)
+
+	// group hands by hand type
+	// by using an array of handType to hands
+	var types [five + 1][]hand
+	for _, hand := range hands {
+		t := categorizeHand(hand.Hand)
+		types[t] = append(types[t], hand)
+	}
+	fmt.Println(types)
+
+	var sum int
+	rank := 1
+	for _, hands := range types {
+		slices.SortFunc(hands, compareHandsPartOne)
+
+		for _, hand := range hands {
+			sum += rank * hand.Bid
+			fmt.Println("rank", rank, "hand", hand, "sum", sum)
+			rank++
+		}
+	}
+
+	return sum, nil
+}
+
+func compareHandsPartTwo(a, b hand) int {
+	as := a.Hand
+	bs := b.Hand
+	for {
+		ar, an := utf8.DecodeRuneInString(as)
+		br, bn := utf8.DecodeRuneInString(bs)
+
+		// assuming both strings are of equal length
+		if an == 0 {
+			return 0
+		}
+
+		cmp := runeToIntPartTwo(ar) - runeToIntPartTwo(br)
+		if cmp != 0 {
+			return cmp
+		}
+
+		// advance in hand
+		as = as[an:]
+		bs = bs[bn:]
+	}
+}
+
+func runeToIntPartTwo(r rune) int {
+	if unicode.IsDigit(r) {
+		return int(r - '0')
+	}
+
+	// J aka Joker is the weakest card in individual comparison
+	// even weaker than 2 hence its value of 1
+	var v int
+	switch r {
+	case 'A':
+		v = 14
+	case 'K':
+		v = 13
+	case 'Q':
+		v = 12
+	case 'J':
+		v = 1
+	case 'T':
+		v = 10
+	}
+	return v
 }

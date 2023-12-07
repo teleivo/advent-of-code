@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -11,38 +10,34 @@ import (
 func TestSolvePartOne(t *testing.T) {
 	file := "testdata/example"
 	want := 6440
-	f1, err := os.Open(file)
+	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)
 	}
-	defer f1.Close()
+	defer f.Close()
 
-	got, err := solvePartOne(f1)
+	got, err := solvePartOne(f)
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartOne", file, want, got)
 }
 
 func TestSolvePartTwo(t *testing.T) {
-	t.Skip()
-	tests := []struct {
-		in   string
-		want int
-	}{
-		{
-			in:   ``,
-			want: 30,
-		},
+	file := "testdata/example"
+	want := 6440
+	f, err := os.Open(file)
+	if err != nil {
+		t.Fatalf("failed to open file %q: %v", file, err)
 	}
+	defer f.Close()
 
-	for _, tc := range tests {
-		got, err := solvePartTwo(strings.NewReader(tc.in))
-		assertNoError(t, err)
-		assertEquals(t, "solvePartTwo", tc.in, tc.want, got)
-	}
+	got, err := solvePartTwo(f)
+
+	assertNoError(t, err)
+	assertEquals(t, "solvePartTwo", file, want, got)
 }
 
-func TestCompareHands(t *testing.T) {
+func TestCompareHandsPartOne(t *testing.T) {
 	tests := []struct {
 		a    hand
 		b    hand
@@ -61,7 +56,7 @@ func TestCompareHands(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := compareHands(tc.a, tc.b)
+		got := compareHandsPartOne(tc.a, tc.b)
 
 		if diff := cmp.Diff(got, tc.want); diff != "" {
 			t.Errorf("%s(%q, %q) mismatch (-want +got):\n%s", "CompareHands", tc.a, tc.b, diff)
