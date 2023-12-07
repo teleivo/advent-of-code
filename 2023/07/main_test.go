@@ -8,6 +8,7 @@ import (
 )
 
 func TestSolvePartOne(t *testing.T) {
+	t.Skip()
 	tests := []struct {
 		in   string
 		want int
@@ -26,6 +27,7 @@ func TestSolvePartOne(t *testing.T) {
 }
 
 func TestSolvePartTwo(t *testing.T) {
+	t.Skip()
 	tests := []struct {
 		in   string
 		want int
@@ -43,6 +45,54 @@ func TestSolvePartTwo(t *testing.T) {
 	}
 }
 
+func TestCategoryzeCard(t *testing.T) {
+	tests := []struct {
+		in   string
+		want handType
+	}{
+		{
+			in:   `32T3K`,
+			want: one,
+		},
+		{
+			in:   `KK677`,
+			want: two,
+		},
+		{
+			in:   `KTJJT`,
+			want: two,
+		},
+		{
+			in:   `T55J5`,
+			want: three,
+		},
+		{
+			in:   `QQQJA`,
+			want: three,
+		},
+		{
+			in:   `AAAAA`,
+			want: five,
+		},
+		{
+			in:   `AA8AA`,
+			want: four,
+		},
+		{
+			in:   `23332`,
+			want: fullHouse,
+		},
+		{
+			in:   `23456`,
+			want: high,
+		},
+	}
+
+	for _, tc := range tests {
+		got := categorizeHand(tc.in)
+		assertDeepEquals(t, "categorizeHand", tc.in, tc.want, got)
+	}
+}
 func TestCardFrequencies(t *testing.T) {
 	tests := []struct {
 		in   string

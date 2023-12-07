@@ -56,6 +56,11 @@ func solvePartOne(r io.Reader) (int, error) {
 		return 0, err
 	}
 	fmt.Println(hands)
+
+	// for _, hand := range hands {
+	// 	// freq := cardFrequencies(hand.Hand)
+	// }
+
 	return 0, nil
 }
 
@@ -67,6 +72,18 @@ const (
 	K
 	Q
 	T
+)
+
+type handType int
+
+const (
+	five handType = iota
+	four
+	fullHouse
+	three
+	two
+	one
+	high
 )
 
 type hand struct {
@@ -89,6 +106,40 @@ func parseHands(r io.Reader) ([]hand, error) {
 		hands = append(hands, hand{Hand: hd, Bid: v})
 	}
 	return hands, nil
+}
+
+func categorizeHand(hand string) handType {
+	frequencies := cardFrequencies(hand)
+	var triple bool
+	var pairs int
+	for _, freq := range frequencies {
+		if freq == 5 {
+			return five
+		}
+		if freq == 4 {
+			return four
+		}
+		if freq == 3 {
+			triple = true
+			continue
+		}
+		if freq == 2 {
+			pairs++
+		}
+	}
+	if triple && pairs == 1 {
+		return fullHouse
+	}
+	if triple {
+		return three
+	}
+	if pairs == 2 {
+		return two
+	}
+	if pairs == 1 {
+		return one
+	}
+	return high
 }
 
 func cardFrequencies(hand string) map[rune]int {
