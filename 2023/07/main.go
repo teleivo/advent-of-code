@@ -56,7 +56,6 @@ func solvePartOne(r io.Reader) (int, error) {
 		return 0, err
 	}
 	fmt.Println(hands)
-	fmt.Println(A)
 	return 0, nil
 }
 
@@ -90,6 +89,18 @@ func parseHands(r io.Reader) ([]hand, error) {
 		hands = append(hands, hand{Hand: hd, Bid: v})
 	}
 	return hands, nil
+}
+
+func cardFrequencies(hand string) map[rune]int {
+	result := make(map[rune]int)
+	for _, card := range hand {
+		if _, ok := result[card]; !ok {
+			result[card] = 1
+			continue
+		}
+		result[card]++
+	}
+	return result
 }
 
 // solvePartOne solves part two of the puzzle.

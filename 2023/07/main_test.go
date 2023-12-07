@@ -43,6 +43,28 @@ func TestSolvePartTwo(t *testing.T) {
 	}
 }
 
+func TestCardFrequencies(t *testing.T) {
+	tests := []struct {
+		in   string
+		want map[rune]int
+	}{
+		{
+			in: `32T3K`,
+			want: map[rune]int{
+				'3': 2,
+				'2': 1,
+				'T': 1,
+				'K': 1,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		got := cardFrequencies(tc.in)
+		assertDeepEquals(t, "cardFrequencies", tc.in, tc.want, got)
+	}
+}
+
 func assertError(t *testing.T, err error) {
 	if err == nil {
 		t.Fatal("expected error instead got nil instead", err)
