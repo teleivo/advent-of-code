@@ -58,7 +58,6 @@ func solvePartOne(r io.Reader) (int, error) {
 	instructions := s.Text()
 	fmt.Println(instructions)
 
-	var start string
 	network := make(map[string]*node)
 	for s.Scan() {
 		line := s.Text()
@@ -78,10 +77,6 @@ func solvePartOne(r io.Reader) (int, error) {
 		left := leftStr[1:]
 		right := rightStr[:len(rightStr)-1]
 		// fmt.Println("left", left, "right", right)
-
-		if start == "" {
-			start = label
-		}
 
 		var n *node
 		if _, ok := network[label]; !ok {
@@ -113,6 +108,7 @@ func solvePartOne(r io.Reader) (int, error) {
 		fmt.Printf("%q: label %q, left %q, right %q\n", k, v.Label, v.Left.Label, v.Right.Label)
 	}
 
+	start := "AAA"
 	fmt.Println("start at", start)
 	var steps int
 	cur := start
@@ -132,6 +128,35 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 
 	return steps, nil
+}
+
+func findGoal(network map[string]*node, start, instructions string) int {
+	fmt.Println("start at", start)
+	var steps int
+	cur := start
+	for _, instruction := range instructions {
+		fmt.Println("at node", cur, "now going", string(instruction))
+		n := network[cur]
+		if instruction == 'L' {
+			cur = n.Left.Label
+		} else {
+			cur = n.Right.Label
+		}
+		steps++
+
+		if cur == "ZZZ" {
+			fmt.Println("arrived at end in", steps)
+			return steps
+		}
+	}
+
+	if cur != "ZZZ" {
+		fmt.Println("TRYING Again", steps)
+		return findGoal(network, cur, instructions) + steps
+	}
+
+	// Todo?
+	return steps
 }
 
 type node struct {
