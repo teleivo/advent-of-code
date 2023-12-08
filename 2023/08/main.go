@@ -56,7 +56,6 @@ func solvePartOne(r io.Reader) (int, error) {
 		return 0, errors.New("no instructions to read")
 	}
 	instructions := s.Text()
-	fmt.Println(instructions)
 
 	network := make(map[string]*node)
 	for s.Scan() {
@@ -109,23 +108,7 @@ func solvePartOne(r io.Reader) (int, error) {
 	}
 
 	start := "AAA"
-	fmt.Println("start at", start)
-	var steps int
-	cur := start
-	for _, instruction := range instructions {
-		fmt.Println("at node", cur, "now going", string(instruction))
-		n := network[cur]
-		if instruction == 'L' {
-			cur = n.Left.Label
-		} else {
-			cur = n.Right.Label
-		}
-		steps++
-
-		if cur == "ZZZ" {
-			fmt.Println("arrived at end in", steps)
-		}
-	}
+	steps := findGoal(network, start, instructions)
 
 	return steps, nil
 }
