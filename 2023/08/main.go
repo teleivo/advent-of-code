@@ -23,27 +23,27 @@ func run(w io.Writer, args []string) error {
 
 	file := args[1]
 
-	f1, err := os.Open(file)
-	if err != nil {
-		return fmt.Errorf("failed to open file %q: %v", file, err)
-	}
-	defer f1.Close()
-	cal, err := solvePartOne(f1)
-	if err != nil {
-		return err
-	}
-	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
+	// f1, err := os.Open(file)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to open file %q: %v", file, err)
+	// }
+	// defer f1.Close()
+	// cal, err := solvePartOne(f1)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
 
 	f2, err := os.Open(file)
 	if err != nil {
 		return fmt.Errorf("failed to open file %q: %v", file, err)
 	}
 	defer f2.Close()
-	cal, err = solvePartTwo(f2)
+	result2, err := solvePartTwo(f2)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", cal)
+	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", result2)
 
 	return nil
 }
@@ -150,5 +150,122 @@ type node struct {
 
 // solvePartOne solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
-	return 0, nil
+	s := bufio.NewScanner(r)
+
+	if !s.Scan() {
+		return 0, errors.New("no instructions to read")
+	}
+	instructions := s.Text()
+
+	var start []string
+	network := make(map[string]*node)
+	for s.Scan() {
+		line := s.Text()
+		if len(line) == 0 {
+			// skip empty line
+			continue
+		}
+		label, directions, found := strings.Cut(line, " = ")
+		if !found {
+			return 0, fmt.Errorf("failed to split node on '=' in line %q", line)
+		}
+		// fmt.Println("label", label, "directions", directions)
+		leftStr, rightStr, found := strings.Cut(directions, ", ")
+		if !found {
+			return 0, fmt.Errorf("failed to split directions on ', ' in line %q", line)
+		}
+		left := leftStr[1:]
+		right := rightStr[:len(rightStr)-1]
+		// fmt.Println("left", left, "right", right)
+
+		if label[len(label)-1] == 'A' {
+			start = append(start, label)
+		}
+
+		var n *node
+		if _, ok := network[label]; !ok {
+			n = &node{Label: label}
+		} else {
+			n = network[label]
+		}
+
+		var leftNode *node
+		if _, ok := network[left]; !ok {
+			leftNode = &node{Label: left}
+		} else {
+			leftNode = network[left]
+		}
+		n.Left = leftNode
+
+		var rightNode *node
+		if _, ok := network[right]; !ok {
+			rightNode = &node{Label: right}
+		} else {
+			rightNode = network[right]
+		}
+		n.Right = rightNode
+
+		network[label] = n
+	}
+
+	for k, v := range network {
+		fmt.Printf("%q: label %q, left %q, right %q\n", k, v.Label, v.Left.Label, v.Right.Label)
+	}
+
+	steps := findGoalPart2(network, start, instructions)
+
+	return steps, nil
+}
+
+func findGoalPart2(network map[string]*node, start []string, instructions string) int {
+	fmt.Println("start at", start)
+	var steps int
+
+	currents := make([]string, len(start))
+	end := make([]bool, len(start))
+	copy(currents, start)
+
+	for _, instruction := range instructions {
+		for i := 0; i < len(currents); i++ {
+			cur := currents[i]
+
+			fmt.Println("at node", cur, "now going", string(instruction))
+			n := network[cur]
+			if instruction == 'L' {
+				cur = n.Left.Label
+			} else {
+				cur = n.Right.Label
+			}
+
+			if cur[len(cur)-1] == 'Z' {
+				end[i] = true
+				fmt.Println("next node", cur, ": is a final one")
+			} else {
+				end[i] = false
+				fmt.Println("next node", cur, ": not a final one")
+			}
+
+			currents[i] = cur
+		}
+
+		steps++
+
+		fmt.Println(end)
+		done := true
+		for _, v := range end {
+			if !v {
+				done = false
+			}
+		}
+		fmt.Println("done", done)
+		if done {
+			return steps
+		}
+		for i := 0; i < len(end); i++ {
+			end[i] = false
+		}
+
+	}
+	// TODO implement the repeat logic as well?
+	return findGoalPart2(network, currents, instructions) + steps
 }

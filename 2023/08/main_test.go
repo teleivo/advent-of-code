@@ -23,8 +23,8 @@ func TestSolvePartOne(t *testing.T) {
 }
 
 func TestSolvePartTwo(t *testing.T) {
-	file := "testdata/example"
-	want := 5905
+	file := "testdata/example-part-2"
+	want := 6
 	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)
