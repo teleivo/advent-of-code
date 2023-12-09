@@ -208,64 +208,55 @@ func solvePartTwo(r io.Reader) (int, error) {
 		network[label] = n
 	}
 
-	for k, v := range network {
-		fmt.Printf("%q: label %q, left %q, right %q\n", k, v.Label, v.Left.Label, v.Right.Label)
-	}
+	// for k, v := range network {
+	// 	fmt.Printf("%q: label %q, left %q, right %q\n", k, v.Label, v.Left.Label, v.Right.Label)
+	// }
+	fmt.Println(start)
 
 	steps := findGoalPart2(network, start, instructions)
 
 	return steps, nil
 }
 
-func findGoalPart2(network map[string]*node, start []string, instructions string) int {
-	fmt.Println("start at", start)
+func findGoalPart2(network map[string]*node, currents []string, instructions string) int {
 	var steps int
 
-	currents := make([]string, len(start))
-	end := make([]bool, len(start))
-	copy(currents, start)
+	for {
+		for _, instruction := range instructions {
+			fmt.Println("step", steps, "current", currents)
 
-	for _, instruction := range instructions {
-		for i := 0; i < len(currents); i++ {
-			cur := currents[i]
+			for i := 0; i < len(currents); i++ {
+				cur := currents[i]
 
-			fmt.Println("at node", cur, "now going", string(instruction))
-			n := network[cur]
-			if instruction == 'L' {
-				cur = n.Left.Label
-			} else {
-				cur = n.Right.Label
+				// fmt.Println("at node", cur, "now going", string(instruction))
+				n := network[cur]
+				if instruction == 'L' {
+					cur = n.Left.Label
+				} else {
+					cur = n.Right.Label
+				}
+
+				currents[i] = cur
 			}
 
-			if cur[len(cur)-1] == 'Z' {
-				end[i] = true
-				fmt.Println("next node", cur, ": is a final one")
-			} else {
-				end[i] = false
-				fmt.Println("next node", cur, ": not a final one")
+			steps++
+
+			done := true
+			for i := 0; i < len(currents); i++ {
+				cur := currents[i]
+				if cur[len(cur)-1] == 'Z' {
+					// end[i] = true
+					// fmt.Println("next node", cur, ": is a final one")
+				} else {
+					done = false
+					// fmt.Println("next node", cur, ": not a final one")
+				}
 			}
 
-			currents[i] = cur
-		}
-
-		steps++
-
-		fmt.Println(end)
-		done := true
-		for _, v := range end {
-			if !v {
-				done = false
+			if done {
+				fmt.Println("step", steps, "current", currents)
+				return steps
 			}
 		}
-		fmt.Println("done", done)
-		if done {
-			return steps
-		}
-		for i := 0; i < len(end); i++ {
-			end[i] = false
-		}
-
 	}
-	// TODO implement the repeat logic as well?
-	return findGoalPart2(network, currents, instructions) + steps
 }
