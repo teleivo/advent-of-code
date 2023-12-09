@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -47,10 +48,20 @@ func run(w io.Writer, args []string) error {
 
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
+	s := bufio.NewScanner(r)
+	for s.Scan() {
+		line := s.Text()
+		_ = line
+	}
 	return 0, nil
 }
 
 // solvePartOne solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
+	s := bufio.NewScanner(r)
+	for s.Scan() {
+		line := s.Text()
+		_ = line
+	}
 	return 0, nil
 }
