@@ -70,11 +70,11 @@ func solvePartOne(r io.Reader) (int, error) {
 			nodeID := toNodeID(cols, rowID, colID)
 			currentNode := graph[nodeID]
 			if currentNode == nil {
-				currentNode = &node{}
+				currentNode = &node{neighbors: make(map[int]struct{})}
 				graph[nodeID] = currentNode
 			}
 
-			fmt.Println("rowID", rowID, "colID", colID, string(col), "nodeID", nodeID)
+			// fmt.Println("rowID", rowID, "colID", colID, string(col), "nodeID", nodeID)
 			switch col {
 			case 'S':
 				start = nodeID
@@ -84,126 +84,126 @@ func solvePartOne(r io.Reader) (int, error) {
 					neighborNodeID := toNodeID(cols, rowID, colID-1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if colID+1 < cols { // right
 					neighborNodeID := toNodeID(cols, rowID, colID+1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 			case '|': // node connects up and down nodes
 				if rowID-1 >= 0 { // up
 					neighborNodeID := toNodeID(cols, rowID-1, colID)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if rowID+1 < rows { // down
 					neighborNodeID := toNodeID(cols, rowID+1, colID)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 			case '7': // node connects left and down nodes
 				if colID-1 >= 0 { // left
 					neighborNodeID := toNodeID(cols, rowID, colID-1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if rowID+1 < rows { // down
 					neighborNodeID := toNodeID(cols, rowID+1, colID)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 			case 'F': // node connects right and down nodes
 				if colID+1 < cols { // right
 					neighborNodeID := toNodeID(cols, rowID, colID+1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if rowID+1 < rows { // down
 					neighborNodeID := toNodeID(cols, rowID+1, colID)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 			case 'J': // node connects up and left nodes
 				if colID-1 >= 0 { // left
 					neighborNodeID := toNodeID(cols, rowID, colID-1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if rowID-1 >= 0 { // up
 					neighborNodeID := toNodeID(cols, rowID-1, colID)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 			case 'L': // node connects up and right nodes
 				if colID+1 < cols { // right
 					neighborNodeID := toNodeID(cols, rowID, colID+1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if rowID-1 >= 0 { // up
 					neighborNodeID := toNodeID(cols, rowID-1, colID)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
-						neighbor = &node{}
+						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors = append(neighbor.neighbors, nodeID)
-					currentNode.neighbors = append(currentNode.neighbors, neighborNodeID)
+					neighbor.neighbors[nodeID] = struct{}{}
+					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 			}
 		}
@@ -221,7 +221,7 @@ func solvePartOne(r io.Reader) (int, error) {
 }
 
 type node struct {
-	neighbors []int
+	neighbors map[int]struct{}
 }
 
 func toNodeID(cols, rowID, colID int) int {
