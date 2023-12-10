@@ -208,7 +208,6 @@ func solvePartOne(r io.Reader) (int, error) {
 			}
 		}
 	}
-	fmt.Println("start", start)
 	for i, n := range graph {
 		if n != nil {
 			fmt.Println("i", i, "neighbors", n.neighbors)
@@ -217,7 +216,50 @@ func solvePartOne(r io.Reader) (int, error) {
 		}
 	}
 
-	return 0, nil
+	// example2
+	// start 10
+	// [11 6 7 2 3 8 9 14 19 18 17 16 21 20 15 10 11]
+	// is the loop containing the start
+	// I often get another loop that does not contain the start
+	// can it be that my algorithm has issues if there is another loop
+	//
+
+	marked := make([]bool, len(graph))
+	edgeTo := make([]int, len(graph))
+	c := cycle{}
+	c.dfs(graph, marked, edgeTo, -1, start)
+	fmt.Println("start", start)
+	fmt.Println(c.path)
+
+	return len(c.path) / 2, nil
+}
+
+type cycle struct {
+	path []int
+}
+
+func (c *cycle) dfs(graph []*node, marked []bool, edgeTo []int, u, v int) {
+	marked[v] = true
+	for w := range graph[v].neighbors {
+		if c.path != nil {
+			// cycle already found
+			return
+		}
+
+		if !marked[w] {
+			edgeTo[w] = v
+			c.dfs(graph, marked, edgeTo, v, w)
+		} else if w != u {
+			// check for path (but disregard reverse of edge leading to v)
+			var path []int
+			for x := v; x != w; x = edgeTo[x] {
+				path = append(path, x)
+			}
+			path = append(path, w)
+			path = append(path, v)
+			c.path = path
+		}
+	}
 }
 
 type node struct {
