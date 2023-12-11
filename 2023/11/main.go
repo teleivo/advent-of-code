@@ -234,14 +234,12 @@ func sumDistances(galaxies map[int][2]int, distances map[int][][]int) int {
 // solvePartTwo solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
 	grid, galaxies := parseAndExpandGridPartTwo(r)
-	// grid := parseAndExpandGrid(r)
-	// galaxies := enumerateGalaxies(grid)
 	distances := bfsPartTwo(grid, galaxies)
 	sum := sumDistances(galaxies, distances)
 	return sum, nil
 }
 
-func parseAndExpandGridPartTwo(r io.Reader) ([][]rune, map[int][2]int) {
+func parseAndExpandGridPartTwo(r io.Reader) ([][]int, map[int][2]int) {
 	s := bufio.NewScanner(r)
 	var grid [][]rune
 	var galaxyCount int
@@ -277,31 +275,27 @@ func parseAndExpandGridPartTwo(r io.Reader) ([][]rune, map[int][2]int) {
 		}
 	}
 
-	var expandedRows [][]rune
-	for i := 0; i < rows; i++ {
-		expandedRows = append(expandedRows, grid[i])
-		if _, ok := rowsWithoutGalaxy[i]; ok {
-			expandedRows = append(expandedRows, grid[i])
-		}
-	}
+	// turn grid into a grid of distances . and # are 1 and expanded rows are 1mio
+	expandedGrid := make([][]int, rows)
+	for gridRowNr, gridRow := range grid {
+		expandedGrid[gridRowNr] = make([]int, len(gridRow))
 
-	var expandedGrid [][]rune
-	for i := 0; i < len(expandedRows); i++ {
-		expandedRow := expandedRows[i]
-		var row []rune
-		for j := 0; j < len(expandedRow); j++ {
-			row = append(row, expandedRow[j])
-			if _, ok := colsWithGalaxy[j]; !ok {
-				row = append(row, expandedRow[j])
+		for gridColNr := range gridRow {
+			weight := 1
+			_, emptyRow := rowsWithoutGalaxy[gridRowNr]
+			_, emptyCol := colsWithoutGalaxy[gridColNr]
+			if emptyRow && emptyCol {
+				weight = 2_000_000
+			} else if emptyRow || emptyCol {
+				weight = 1_000_000
 			}
+			expandedGrid[gridRowNr][gridColNr] = weight
 		}
-		expandedGrid = append(expandedGrid, row)
 	}
 
-	// map of x,y coordinates
 	galaxyCount = 0
 	galaxies := make(map[int][2]int)
-	for i, row := range expandedGrid {
+	for i, row := range grid {
 		for j, r := range row {
 			if r == '#' {
 				galaxies[galaxyCount] = [2]int{i, j}
@@ -313,7 +307,7 @@ func parseAndExpandGridPartTwo(r io.Reader) ([][]rune, map[int][2]int) {
 	return expandedGrid, galaxies
 }
 
-func bfsPartTwo(grid [][]rune, galaxies map[int][2]int) map[int][][]int {
+func bfsPartTwo(grid [][]int, galaxies map[int][2]int) map[int][][]int {
 	rows := len(grid)
 	cols := len(grid[0])
 	distances := make(map[int][][]int)
@@ -361,7 +355,7 @@ func bfsPartTwo(grid [][]rune, galaxies map[int][2]int) map[int][][]int {
 				if distance[wRow] == nil {
 					distance[wRow] = make([]int, cols)
 				}
-				distance[wRow][wCol] = distance[vRow][vCol] + 1
+				distance[wRow][wCol] = distance[vRow][vCol] + grid[vRow][vCol]
 				queue = append(queue, w)
 				// fmt.Println("queue", queue, "distanceTo", distanceTo)
 			}
