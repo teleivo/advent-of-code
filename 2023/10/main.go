@@ -61,7 +61,6 @@ func solvePartOne(r io.Reader) (int, error) {
 		}
 		rows++
 	}
-	fmt.Println(grid)
 
 	var start int
 	graph := make([]*node, rows*cols)
@@ -70,11 +69,13 @@ func solvePartOne(r io.Reader) (int, error) {
 			nodeID := toNodeID(cols, rowID, colID)
 			currentNode := graph[nodeID]
 			if currentNode == nil {
-				currentNode = &node{neighbors: make(map[int]struct{})}
+				currentNode = &node{neighbors: make(map[int]struct{}), symbol: col}
 				graph[nodeID] = currentNode
+			} else {
+				currentNode.symbol = col
 			}
 
-			// fmt.Println("rowID", rowID, "colID", colID, string(col), "nodeID", nodeID)
+			fmt.Println("rowID", rowID, "colID", colID, string(col), "nodeID", nodeID)
 			switch col {
 			case 'S':
 				start = nodeID
@@ -121,15 +122,16 @@ func solvePartOne(r io.Reader) (int, error) {
 					neighbor.neighbors[nodeID] = struct{}{}
 					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
-			case '7': // node connects left and down nodes
+			case '7': // node connects south and west
 				if colID-1 >= 0 { // left
+					fmt.Println("7 going left")
 					neighborNodeID := toNodeID(cols, rowID, colID-1)
 					neighbor := graph[neighborNodeID]
 					if neighbor == nil {
 						neighbor = &node{neighbors: make(map[int]struct{})}
 						graph[neighborNodeID] = neighbor
 					}
-					neighbor.neighbors[nodeID] = struct{}{}
+					// neighbor.neighbors[nodeID] = struct{}{}
 					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
 				if rowID+1 < rows { // down
@@ -142,7 +144,7 @@ func solvePartOne(r io.Reader) (int, error) {
 					neighbor.neighbors[nodeID] = struct{}{}
 					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
-			case 'F': // node connects right and down nodes
+			case 'F': // node connects south and east
 				if colID+1 < cols { // right
 					neighborNodeID := toNodeID(cols, rowID, colID+1)
 					neighbor := graph[neighborNodeID]
@@ -184,7 +186,7 @@ func solvePartOne(r io.Reader) (int, error) {
 					neighbor.neighbors[nodeID] = struct{}{}
 					currentNode.neighbors[neighborNodeID] = struct{}{}
 				}
-			case 'L': // node connects up and right nodes
+			case 'L': // node connects north and east
 				if colID+1 < cols { // right
 					neighborNodeID := toNodeID(cols, rowID, colID+1)
 					neighbor := graph[neighborNodeID]
@@ -208,34 +210,69 @@ func solvePartOne(r io.Reader) (int, error) {
 			}
 		}
 	}
+
 	for i, n := range graph {
+		if n.symbol == '.' {
+			n.neighbors = nil
+		}
 		if n != nil {
-			fmt.Println("i", i, "neighbors", n.neighbors)
+			fmt.Println("i", i, "symbol", string(n.symbol), "neighbors", n.neighbors)
 		} else {
-			fmt.Println("i", i, "no neighbors")
+			fmt.Println("i", i, "symbol", string(n.symbol), "no neighbors")
 		}
 	}
 
-	// example2
-	// start 10
-	// [11 6 7 2 3 8 9 14 19 18 17 16 21 20 15 10 11]
-	// is the loop containing the start
-	// I often get another loop that does not contain the start
-	// can it be that my algorithm has issues if there is another loop
-	//
-
-	marked := make([]bool, len(graph))
-	edgeTo := make([]int, len(graph))
 	c := cycle{}
-	c.dfs(graph, marked, edgeTo, -1, start)
+	result := c.bfs(graph, start)
 	fmt.Println("start", start)
-	fmt.Println(c.path)
+	fmt.Println(graph[start])
 
-	return len(c.path) / 2, nil
+	return result, nil
 }
 
 type cycle struct {
 	path []int
+}
+
+// 330 is too low
+func (c *cycle) bfs(graph []*node, source int) int {
+	var maxDistance int
+	marked := make([]bool, len(graph))
+	distanceTo := make([]int, len(graph))
+	for i := 0; i < len(distanceTo); i++ {
+		distanceTo[i] = -1
+	}
+	distanceTo[source] = 0
+	marked[source] = true
+	queue := []int{source}
+
+	for len(queue) != 0 {
+		// dequeue
+		// fmt.Println("queue before dequeu", queue)
+		v := queue[0]
+		if len(queue) > 1 {
+			queue = queue[1:]
+		} else {
+			queue = nil
+		}
+		// fmt.Println("queue after dequeu", queue)
+
+		for w := range graph[v].neighbors {
+			if marked[w] {
+				continue
+			}
+
+			distanceTo[w] = distanceTo[v] + 1
+			maxDistance = max(maxDistance, distanceTo[w])
+			marked[w] = true
+			queue = append(queue, w)
+			// fmt.Println("queue", queue, "distanceTo", distanceTo)
+		}
+	}
+
+	fmt.Println("distanceTo", distanceTo)
+	fmt.Println("maxDistance", maxDistance)
+	return maxDistance
 }
 
 func (c *cycle) dfs(graph []*node, marked []bool, edgeTo []int, u, v int) {
@@ -264,6 +301,7 @@ func (c *cycle) dfs(graph []*node, marked []bool, edgeTo []int, u, v int) {
 
 type node struct {
 	neighbors map[int]struct{}
+	symbol    rune
 }
 
 func toNodeID(cols, rowID, colID int) int {
