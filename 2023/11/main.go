@@ -48,12 +48,9 @@ func run(w io.Writer, args []string) error {
 
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
-
 	grid := parseAndExpandGrid(r)
-	_ = grid
-
-	// TODO turn galaxies into numbers and add test
-	// row = append(row, rune(galaxyCount))
+	galaxies := enumerateGalaxies(grid)
+	fmt.Println("galaxies", galaxies)
 
 	return 0, nil
 }
@@ -87,18 +84,12 @@ func parseAndExpandGrid(r io.Reader) [][]rune {
 		rows++
 	}
 
-	fmt.Println("rows", rows, "cols", cols)
-	for row := range rowsWithoutGalaxy {
-		fmt.Println("row without galaxy", row)
-	}
+	fmt.Println("unexpanded rows", rows, "cols", cols)
 	colsWithoutGalaxy := make(map[int]struct{})
 	for i := 0; i < cols; i++ {
 		if _, ok := colsWithGalaxy[i]; !ok {
 			colsWithoutGalaxy[i] = struct{}{}
 		}
-	}
-	for col := range colsWithoutGalaxy {
-		fmt.Println("col without galaxy", col)
 	}
 
 	var expandedRows [][]rune
@@ -124,6 +115,58 @@ func parseAndExpandGrid(r io.Reader) [][]rune {
 
 	return expandedGrid
 }
+
+func enumerateGalaxies(grid [][]rune) map[int][2]int {
+	// map of x,y coordinates
+	var galaxyCount int
+	galaxies := make(map[int][2]int)
+	for i, row := range grid {
+		for j, r := range row {
+			if r == '#' {
+				galaxies[galaxyCount] = [2]int{i, j}
+				galaxyCount++
+			}
+		}
+	}
+
+	return galaxies
+}
+
+// func bfs(grid [][]rune, galaxies map[int][2]int) {
+// 	marked := make([]bool, len(graph))
+// 	distanceTo := make([]int, len(graph))
+// 	for i := 0; i < len(distanceTo); i++ {
+// 		distanceTo[i] = -1
+// 	}
+// 	distanceTo[source] = 0
+// 	marked[source] = true
+// 	queue := []int{source}
+//
+// 	for len(queue) != 0 {
+// 		// dequeue
+// 		// fmt.Println("queue before dequeu", queue)
+// 		v := queue[0]
+// 		if len(queue) > 1 {
+// 			queue = queue[1:]
+// 		} else {
+// 			queue = nil
+// 		}
+// 		// fmt.Println("queue after dequeu", queue)
+//
+// 		for w := range graph[v].neighbors {
+// 			if marked[w] {
+// 				continue
+// 			}
+//
+// 			distanceTo[w] = distanceTo[v] + 1
+// 			marked[w] = true
+// 			queue = append(queue, w)
+// 			// fmt.Println("queue", queue, "distanceTo", distanceTo)
+// 		}
+// 	}
+//
+// 	fmt.Println("distanceTo", distanceTo)
+// }
 
 // solvePartOne solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {

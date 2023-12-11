@@ -47,6 +47,32 @@ func TestParseAndExpandGrid(t *testing.T) {
 
 	assertDeepEquals(t, "parseAndExpandGrid", file, want, got.String())
 }
+
+//	func TestEnumerateGalaxies(t *testing.T) {
+//		wantFile := "testdata/example-expanded-galaxies"
+//		b, err := os.ReadFile(wantFile)
+//		assertNoError(t, err)
+//		want := string(b)
+//
+//		file := "testdata/example"
+//		f, err := os.Open(file)
+//		if err != nil {
+//			t.Fatalf("failed to open file %q: %v", file, err)
+//		}
+//		defer f.Close()
+//
+//		var got bytes.Buffer
+//		gridIn := parseAndExpandGrid(f)
+//		grid, _ := enumerateGalaxies(gridIn)
+//		for _, row := range grid {
+//			got.WriteString(string(row))
+//			got.WriteString("\n")
+//		}
+//		fmt.Println(got.String())
+//
+//		assertDeepEquals(t, "enumerateGalaxies", file, want, got.String())
+//	}
+
 func TestSolvePartTwo(t *testing.T) {
 	t.Skip()
 	file := "testdata/example"
