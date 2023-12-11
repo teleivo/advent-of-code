@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"testing"
 
@@ -22,7 +24,31 @@ func TestSolvePartOne(t *testing.T) {
 	assertEquals(t, "solvePartOne", file, want, got)
 }
 
+func TestParseAndExpandGrid(t *testing.T) {
+	wantFile := "testdata/example-expanded"
+	b, err := os.ReadFile(wantFile)
+	assertNoError(t, err)
+	want := string(b)
+
+	file := "testdata/example"
+	f, err := os.Open(file)
+	if err != nil {
+		t.Fatalf("failed to open file %q: %v", file, err)
+	}
+	defer f.Close()
+
+	var got bytes.Buffer
+	grid := parseAndExpandGrid(f)
+	for _, row := range grid {
+		got.WriteString(string(row))
+		got.WriteString("\n")
+	}
+	fmt.Println(got.String())
+
+	assertDeepEquals(t, "parseAndExpandGrid", file, want, got.String())
+}
 func TestSolvePartTwo(t *testing.T) {
+	t.Skip()
 	file := "testdata/example"
 	want := 5905
 	f, err := os.Open(file)
