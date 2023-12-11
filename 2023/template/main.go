@@ -56,7 +56,7 @@ func solvePartOne(r io.Reader) (int, error) {
 	return 0, nil
 }
 
-// solvePartOne solves part two of the puzzle.
+// solvePartTwo solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
 	s := bufio.NewScanner(r)
 	for s.Scan() {

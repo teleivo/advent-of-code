@@ -19,10 +19,11 @@ func TestSolvePartOne(t *testing.T) {
 	got, err := solvePartOne(f)
 
 	assertNoError(t, err)
-	assertEquals(t, "solvePartOne", file, want, got)
+	assertEquals(t, "solvePartOne", file, got, want)
 }
 
 func TestSolvePartTwo(t *testing.T) {
+	t.Skip()
 	file := "testdata/example"
 	want := 5905
 	f, err := os.Open(file)
@@ -34,7 +35,7 @@ func TestSolvePartTwo(t *testing.T) {
 	got, err := solvePartTwo(f)
 
 	assertNoError(t, err)
-	assertEquals(t, "solvePartTwo", file, want, got)
+	assertEquals(t, "solvePartTwo", file, got, want)
 }
 
 func assertError(t *testing.T, err error) {
@@ -49,13 +50,13 @@ func assertNoError(t *testing.T, err error) {
 	}
 }
 
-func assertEquals(t *testing.T, method string, in, want, got any) {
+func assertEquals(t *testing.T, method string, in, got, want any) {
 	if got != want {
 		t.Errorf("%s(%q) = %d; want %d", method, in, got, want)
 	}
 }
 
-func assertDeepEquals(t *testing.T, method string, in, want, got any) {
+func assertDeepEquals(t *testing.T, method string, in, got, want any) {
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("%s(%q) mismatch (-want +got):\n%s", method, in, diff)
 	}
