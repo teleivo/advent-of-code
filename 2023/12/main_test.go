@@ -60,6 +60,31 @@ func TestFindArrangements(t *testing.T) {
 			groups: []int{1},
 			want:   3,
 		},
+		{
+			in:     []byte("???"),
+			groups: []int{1, 1},
+			want:   1,
+		},
+		{
+			in:     []byte("????"),
+			groups: []int{2, 1},
+			want:   1,
+		},
+		{
+			in:     []byte("?????"),
+			groups: []int{2, 1},
+			want:   3,
+		},
+		{
+			in:     []byte("??????"),
+			groups: []int{2, 1},
+			want:   6,
+		},
+		{
+			in:     []byte("???????"),
+			groups: []int{2, 1},
+			want:   10,
+		},
 		// {
 		// 	in:     []byte(".??..??...?##."),
 		// 	groups: []int{1,1,3},

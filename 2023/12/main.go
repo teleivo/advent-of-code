@@ -72,10 +72,35 @@ func findArrangements(springs []byte, groups []int) int {
 		return 1
 	}
 
-	// var start, end int
-	// find a block
+	if !strings.ContainsAny(string(springs), "#.") && strings.ContainsRune(string(springs), '?') {
+		n := len(springs) - groups[0] - separators(groups)
+		arrangements := sumOfN(n)
+		return arrangements
+	}
 
 	return 1
+}
+
+func sumOfN(n int) int {
+	return (n * (n + 1)) / 2
+}
+
+func minWidth(groups []int) int {
+	return sum(groups) + separators(groups)
+}
+
+func sum(nums []int) int {
+	var res int
+	for _, num := range nums {
+		res += num
+	}
+	return res
+}
+
+// separators calculates how many working springs need to separate broken groups in a contiguous
+// stream of unknown '?' spring conditions
+func separators(groups []int) int {
+	return len(groups) - 1
 }
 
 // solvePartTwo solves part two of the puzzle.
