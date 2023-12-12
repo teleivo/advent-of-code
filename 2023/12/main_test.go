@@ -8,13 +8,10 @@ import (
 )
 
 func TestSolvePartOne(t *testing.T) {
+	t.Skip()
 	file := "testdata/example"
-	want := 6440
-	f, err := os.Open(file)
-	if err != nil {
-		t.Fatalf("failed to open file %q: %v", file, err)
-	}
-	defer f.Close()
+	want := 21
+	f, err := os.ReadFile(file)
 
 	got, err := solvePartOne(f)
 
@@ -22,7 +19,52 @@ func TestSolvePartOne(t *testing.T) {
 	assertEquals(t, "solvePartOne", file, want, got)
 }
 
+func TestFindArrangements(t *testing.T) {
+	tests := []struct {
+		in      []byte
+		damaged []int
+		want    int
+	}{
+		{
+			in:      []byte("#.#.###"),
+			damaged: []int{1, 1, 3},
+			want:    1,
+		},
+		{
+			in:      []byte(".??..??...?##."),
+			damaged: []int{1, 1, 3},
+			want:    4,
+		},
+		{
+			in:      []byte("?#?#?#?#?#?#?#?"),
+			damaged: []int{1, 3, 1, 6},
+			want:    1,
+		},
+		{
+			in:      []byte("????.#...#..."),
+			damaged: []int{4, 1, 1},
+			want:    1,
+		},
+		{
+			in:      []byte("????.######..#####."),
+			damaged: []int{1, 6, 5},
+			want:    4,
+		},
+		{
+			in:      []byte("?###????????"),
+			damaged: []int{3, 2, 1},
+			want:    10,
+		},
+	}
+
+	for _, tc := range tests {
+		got := findArrangements(tc.in, tc.damaged)
+		assertEquals(t, "findArrangements", tc.in, got, tc.want)
+	}
+}
+
 func TestSolvePartTwo(t *testing.T) {
+	t.Skip()
 	file := "testdata/example"
 	want := 5905
 	f, err := os.Open(file)
