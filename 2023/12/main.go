@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -57,42 +58,79 @@ func solvePartOne(b []byte) (int, error) {
 	return 0, nil
 }
 
-func findArrangements(springs []byte, damaged []int) int {
+func findArrangements(springs []byte, damagedGroups []int) int {
+	// if len(damagedGroups) == 0 {
+	// 	return 0
+	// }
+	// if len(damagedGroups) == 0 {
+	// 	return 0
+	// }
+
 	arrangements := 1
-	var idx int
-	fmt.Println(string(springs))
-	for _, damage := range damaged {
-		needed := damage
-		fmt.Println("looking for ", needed, "springs from idx", idx)
-		var pending bool
-		var unknown int // represents '?' springs
-		arrangement := 1
-		for idx < len(springs) {
-			fmt.Println("idx", idx, "char", string(springs[idx]))
-			if springs[idx] == '?' {
-				pending = true
-				unknown++
-			} else if springs[idx] == '#' {
-				needed--
+	groupIdx := 0
+	group := damagedGroups[groupIdx]
+	startIdx := 0
+	endIdx := 0
+	var unknowns int
+	var damaged int
+	fmt.Println()
+	fmt.Println("springs", string(springs), "groups", damagedGroups)
+	for endIdx < len(springs) {
+		if springs[endIdx] == '?' {
+			unknowns++
+		} else if springs[endIdx] == '#' {
+			damaged++
+		}
+
+		fmt.Println("unknowns", unknowns, "damaged", damaged, "group", group)
+		if (springs[endIdx] == '.' || springs[endIdx] == '?') && group == damaged {
+			fmt.Println("easy group consumed")
+			// ? could not be another damaged spring as this would mean that the group count is
+			// wrong
+			groupIdx++
+			group = damagedGroups[groupIdx]
+			unknowns = 0
+			damaged = 0
+			startIdx = endIdx + 1 // consume this current spring
+		} else if springs[endIdx] == '.' && unknowns != 0 {
+			fmt.Println("we have", unknowns, "unknowns in substring", startIdx, ":", endIdx+1, "=", string(springs[startIdx:endIdx+1]))
+			// TODO compute permutations on substring using all possible remaining groups; greedy
+
+			// TODO there are 2 cases right? what if there are not all consecutive ?
+			in := strings.Trim(string(springs[startIdx:endIdx]), ".")
+			fmt.Println("working on in", in, "and group", groupIdx)
+			if !strings.ContainsRune(in, '#') {
+				// assuming all ? in the in string
+				width := len(in)
+				var sum int
+				var containedGroups []int
+				// assuming at least one group should still fit
+				for i := groupIdx; i < len(damagedGroups); i++ {
+					sum += damagedGroups[i] + 1
+					if sum <= width {
+						containedGroups = append(containedGroups, i)
+					} else {
+						break
+					}
+				}
+				fmt.Println("groups", containedGroups)
 			}
 
-			fmt.Println("unkown", unknown, "needed", needed)
-			if springs[idx] == '.' && pending {
-				// case without any unknown springs or any permutations of arrangement
-				if needed == 0 || needed == unknown {
-					arrangement = 1
-				} else if unknown != 0 {
-					fmt.Println("damage", damage, "unknown", unknown, "needed", needed, "arrangement", arrangement)
-					arrangement = unknown - needed + 1
-				}
-				idx++ // since we are on the '.' we only skip that one
-				break
-			}
-			idx++
+			unknowns = 0
+			damaged = 0
+			startIdx = endIdx + 1 // consume this current spring
 		}
-		arrangements *= arrangement
+
+		endIdx++
 	}
+
+	// TODO handle the ???? case here as well
+
 	return arrangements
+}
+
+func consumeGroups(width int, group []int) {
+
 }
 
 // solvePartTwo solves part two of the puzzle.
