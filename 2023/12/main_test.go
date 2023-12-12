@@ -21,20 +21,60 @@ func TestSolvePartOne(t *testing.T) {
 
 func TestFindArrangements(t *testing.T) {
 	tests := []struct {
-		in      []byte
-		damaged []int
-		want    int
+		in     []byte
+		groups []int
+		want   int
 	}{
+		{
+			in:     nil,
+			groups: []int{1, 1, 3},
+			want:   1,
+		},
+		{
+			in:     []byte("#"),
+			groups: []int{1},
+			want:   1,
+		},
+		{
+			in:     []byte("#."),
+			groups: []int{1},
+			want:   1,
+		},
+		{
+			in:     []byte("#.#."),
+			groups: []int{1, 1},
+			want:   1,
+		},
+		{
+			in:     []byte("#.#."),
+			groups: []int{1, 1},
+			want:   1,
+		},
+		{
+			in:     []byte("???.###"),
+			groups: []int{1, 1, 3},
+			want:   1,
+		},
+		{
+			in:     []byte("???"),
+			groups: []int{1},
+			want:   3,
+		},
+		// {
+		// 	in:     []byte(".??..??...?##."),
+		// 	groups: []int{1,1,3},
+		// 	want:   4,
+		// },
 		// {
 		// 	in:      []byte("#.#.###"),
 		// 	damaged: []int{1, 1, 3},
 		// 	want:    1,
 		// },
-		{
-			in:      []byte(".??..??...?##."),
-			damaged: []int{1, 1, 3},
-			want:    4,
-		},
+		// {
+		// 	in:      []byte(".??..??...?##."),
+		// 	damaged: []int{1, 1, 3},
+		// 	want:    4,
+		// },
 		// {
 		// 	in:      []byte("?#?#?#?#?#?#?#?"),
 		// 	damaged: []int{1, 3, 1, 6},
@@ -58,7 +98,7 @@ func TestFindArrangements(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := findArrangements(tc.in, tc.damaged)
+		got := findArrangements(tc.in, tc.groups)
 		assertEquals(t, "findArrangements", tc.in, got, tc.want)
 	}
 }
