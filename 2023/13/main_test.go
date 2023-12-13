@@ -155,6 +155,39 @@ func TestVerticalMirrorsPartTwo(t *testing.T) {
 	}
 }
 
+func TestHorizontalMirrorsLocations(t *testing.T) {
+	tests := []struct {
+		pattern string
+		want    []int
+	}{
+		{
+			pattern: `#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.`,
+			want: nil,
+		},
+		{
+			pattern: `#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#`,
+			want: []int{4},
+		},
+	}
+
+	for _, tc := range tests {
+		got := horizontalMirrorLocations(bytes.Fields([]byte(tc.pattern)))
+		assertDeepEquals(t, "horizontalMirrorsLocation", bytes.Fields([]byte(tc.pattern)), got, tc.want)
+	}
+}
+
 func assertError(t *testing.T, err error) {
 	if err == nil {
 		t.Fatal("expected error instead got nil instead", err)
