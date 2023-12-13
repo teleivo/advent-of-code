@@ -9,7 +9,7 @@ import (
 
 func TestSolvePartOne(t *testing.T) {
 	file := "testdata/example"
-	want := 6440
+	want := 405
 	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)

@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -49,10 +51,30 @@ func run(w io.Writer, args []string) error {
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
 	s := bufio.NewScanner(r)
+	var patterns [][][]byte
+	var pattern strings.Builder
 	for s.Scan() {
 		line := s.Text()
-		_ = line
+		if line == "" {
+			patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
+			pattern.Reset()
+			continue
+		}
+		pattern.WriteString(line)
+		pattern.WriteRune('\n')
 	}
+
+	if pattern.String() != "" {
+		patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
+	}
+
+	for i, pattern := range patterns {
+		fmt.Println("pattern", i)
+		for _, line := range pattern {
+			fmt.Println(string(line))
+		}
+	}
+
 	return 0, nil
 }
 
