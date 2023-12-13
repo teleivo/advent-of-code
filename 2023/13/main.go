@@ -68,14 +68,37 @@ func solvePartOne(r io.Reader) (int, error) {
 		patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
 	}
 
+	var sum int
 	for i, pattern := range patterns {
 		fmt.Println("pattern", i)
 		for _, line := range pattern {
 			fmt.Println(string(line))
 		}
+		sum += horizontalMirrors(pattern)
 	}
 
-	return 0, nil
+	return sum, nil
+}
+
+func horizontalMirrors(pattern [][]byte) int {
+	var sum int
+	reflectionLine := 1
+	for reflectionLine < len(pattern) {
+		isMirror := true
+		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < len(pattern); i, j = i-1, j+1 {
+			fmt.Println("mirror", reflectionLine, "i, j:", i, j)
+			if string(pattern[i]) != string(pattern[j]) {
+				isMirror = false
+				break
+			}
+		}
+		if isMirror {
+			// adding the elements above the reflection line*100
+			sum += reflectionLine * 100
+		}
+		reflectionLine++
+	}
+	return sum
 }
 
 // solvePartTwo solves part two of the puzzle.

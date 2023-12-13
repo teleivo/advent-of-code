@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
@@ -20,6 +21,30 @@ func TestSolvePartOne(t *testing.T) {
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartOne", file, got, want)
+}
+
+func TestVerticalMirrors(t *testing.T) {
+	tests := []struct {
+		pattern string
+		want    int
+	}{
+		// todo test multiple horizontal patterns?
+		{
+			pattern: `#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#`,
+			want: 400,
+		},
+	}
+
+	for _, tc := range tests {
+		got := horizontalMirrors(bytes.Fields([]byte(tc.pattern)))
+		assertEquals(t, "verticaMirrors", bytes.Fields([]byte(tc.pattern)), got, tc.want)
+	}
 }
 
 func TestSolvePartTwo(t *testing.T) {
