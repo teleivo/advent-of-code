@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -127,9 +128,129 @@ func verticalMirrors(pattern [][]byte) int {
 // solvePartTwo solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
 	s := bufio.NewScanner(r)
+	var patterns [][][]byte
+	var pattern strings.Builder
 	for s.Scan() {
 		line := s.Text()
-		_ = line
+		if line == "" {
+			patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
+			pattern.Reset()
+			continue
+		}
+		pattern.WriteString(line)
+		pattern.WriteRune('\n')
 	}
-	return 0, nil
+
+	if pattern.String() != "" {
+		patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
+	}
+
+	var sum int
+	for i, pattern := range patterns {
+		fmt.Println("pattern", i)
+		for _, line := range pattern {
+			fmt.Println(string(line))
+		}
+		sum += horizontalMirrorsPartTwo(pattern)
+		sum += verticalMirrorsPartTwo(pattern)
+	}
+
+	return sum, nil
+}
+
+func horizontalMirrorsPartTwo(pattern [][]byte) int {
+	locations := horizontalMirrorsLocation(pattern)
+
+	var sum int
+	reflectionLine := 1
+	for reflectionLine < len(pattern) {
+		var smudgeRow, smudgeCol int
+		var smudge int
+		isMirror := true
+		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < len(pattern); i, j = i-1, j+1 {
+			for z := 0; z < len(pattern[i]); z++ {
+				if pattern[i][z] != pattern[j][z] {
+					smudge++
+					smudgeRow = i
+					smudgeCol = z
+				}
+				// only one smudge can be fixed
+				if smudge > 1 {
+					isMirror = false
+					break
+				}
+			}
+		}
+		if isMirror {
+			if smudge != 0 {
+				fmt.Println("reflectionLine", reflectionLine, "via smudge in", smudgeRow, smudgeCol, "diff", smudge)
+				old := pattern[smudgeRow][smudgeCol]
+				if old == '.' {
+					pattern[smudgeRow][smudgeCol] = '#'
+				} else {
+					pattern[smudgeRow][smudgeCol] = '.'
+				}
+			} else {
+				fmt.Println("reflectionLine without smudge", reflectionLine)
+				if slices.Contains(locations, reflectionLine) {
+					fmt.Println("skipping old line")
+					reflectionLine++
+					continue
+				}
+			}
+			// adding the elements above the reflection line*100
+			sum += reflectionLine * 100
+			fmt.Println("sum", sum)
+		}
+		reflectionLine++
+	}
+	return sum
+}
+
+// finds old mirror locations so I can exclude them in part 2 smudges
+func horizontalMirrorsLocation(pattern [][]byte) []int {
+	var locations []int
+	reflectionLine := 1
+	for reflectionLine < len(pattern) {
+		isMirror := true
+		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < len(pattern); i, j = i-1, j+1 {
+			if string(pattern[i]) != string(pattern[j]) {
+				isMirror = false
+				break
+			}
+		}
+		if isMirror {
+			locations = append(locations, reflectionLine)
+		}
+		reflectionLine++
+	}
+	return locations
+}
+
+func verticalMirrorsPartTwo(pattern [][]byte) int {
+	var sum int
+	reflectionLine := 1
+	n := len(pattern[0])
+	for reflectionLine < n {
+		var diff int
+		isMirror := true
+		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < n; i, j = i-1, j+1 {
+			for _, row := range pattern {
+				if row[i] != row[j] {
+					diff++
+				}
+				// only one smudge can be fixed
+				if diff > 1 {
+					isMirror = false
+					break
+				}
+			}
+		}
+		if isMirror {
+			// adding the elements left oft the reflection line
+			sum += reflectionLine
+		}
+		reflectionLine++
+	}
+	return sum
 }

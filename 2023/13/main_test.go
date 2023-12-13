@@ -28,7 +28,6 @@ func TestHorizontalMirrors(t *testing.T) {
 		pattern string
 		want    int
 	}{
-		// todo test multiple horizontal patterns?
 		{
 			pattern: `#...##..#
 #....#..#
@@ -71,9 +70,8 @@ func TestVerticalMirrors(t *testing.T) {
 }
 
 func TestSolvePartTwo(t *testing.T) {
-	t.Skip()
 	file := "testdata/example"
-	want := 5905
+	want := 400
 	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)
@@ -86,6 +84,38 @@ func TestSolvePartTwo(t *testing.T) {
 	assertEquals(t, "solvePartTwo", file, got, want)
 }
 
+func TestHorizontalMirrorsPartTwo(t *testing.T) {
+	tests := []struct {
+		pattern string
+		want    int
+	}{
+		// 		{
+		// 			pattern: `#.##..##.
+		// ..#.##.#.
+		// ##......#
+		// ##......#
+		// ..#.##.#.
+		// ..##..##.
+		// #.#.##.#.`,
+		// 			want: 300,
+		// 		},
+		{
+			pattern: `#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#`,
+			want: 100,
+		},
+	}
+
+	for _, tc := range tests {
+		got := horizontalMirrorsPartTwo(bytes.Fields([]byte(tc.pattern)))
+		assertEquals(t, "horizontalMirrorsPartTwo", bytes.Fields([]byte(tc.pattern)), got, tc.want)
+	}
+}
 func assertError(t *testing.T, err error) {
 	if err == nil {
 		t.Fatal("expected error instead got nil instead", err)
