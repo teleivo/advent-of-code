@@ -78,6 +78,9 @@ func findArrangements(springs []byte, groups []int) int {
 	if len(springs) == 0 {
 		return 1
 	}
+	if len(groups) == 0 {
+		return 1
+	}
 	if len(groups) == 1 {
 		group := groups[0]
 		// TODO at least in case springs are all ? there are arrangements: unknowns - group + 1
