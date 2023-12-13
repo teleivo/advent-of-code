@@ -86,26 +86,44 @@ func findArrangements(springs []byte, groups []int) int {
 	// or what are the other special cases?
 	var end int
 	var unknowns int
+	var damaged int
 	for end < len(input) {
 		if input[end] == '?' {
 			unknowns++
+		} else if input[end] == '#' {
+			damaged++
 		} else if input[end] == '.' && unknowns != 0 {
 			end++ // as this separator needs to be consumed
 			break
 		}
+		if damaged == groups[0] {
+			end++ // the damaged spring needs to be consumed
+			// consume a separator if we are not yet at the end
+			if end < len(input) {
+				end++
+			}
+			break
+		}
 		end++
 	}
-	head := input[0:end]
-	head = strings.Trim(head, ".")
-	tail := input[end:]
-	tail = strings.Trim(tail, ".")
-	headGroups, tailGroups := splitGroups(head, groups)
-	fmt.Println("chunk", string(head), "rest", string(tail))
+	fmt.Println("chunk", input[end:])
+	// only unknowns like ????
+	if unknowns != 0 && damaged == 0 {
+		head := input[0:end]
+		head = strings.Trim(head, ".")
+		tail := input[end:]
+		tail = strings.Trim(tail, ".")
+		headGroups, tailGroups := splitGroups(head, groups)
+		fmt.Println("chunk", string(head), "rest", string(tail))
+		return findArrangements([]byte(head), headGroups) * findArrangements([]byte(tail), tailGroups)
+	}
+	// if the group satisifies the damaged springs consume it
+	if damaged == groups[0] && len(groups) > 1 {
+		return findArrangements([]byte(input[end:]), groups[1:])
+	}
 
-	// TODO split groups as well. a group can only be consumed once
-	// in case head is all ????
-
-	return findArrangements([]byte(head), headGroups) + findArrangements([]byte(tail), tailGroups)
+	// I am just ignoring all groups then
+	return 1
 }
 
 func sumOfN(n int) int {

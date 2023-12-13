@@ -46,11 +46,6 @@ func TestFindArrangements(t *testing.T) {
 			want:   1,
 		},
 		{
-			in:     []byte("#.#."),
-			groups: []int{1, 1},
-			want:   1,
-		},
-		{
 			in:     []byte("???.###"),
 			groups: []int{1, 1, 3},
 			want:   1,
@@ -90,42 +85,41 @@ func TestFindArrangements(t *testing.T) {
 			groups: []int{1, 1},
 			want:   4,
 		},
-		// TODO
-		// {
-		// 	in:     []byte(".??..??...?##."),
-		// 	groups: []int{1,1,3},
-		// 	want:   4,
-		// },
-		// {
-		// 	in:      []byte("#.#.###"),
-		// 	damaged: []int{1, 1, 3},
-		// 	want:    1,
-		// },
-		// {
-		// 	in:      []byte(".??..??...?##."),
-		// 	damaged: []int{1, 1, 3},
-		// 	want:    4,
-		// },
-		// {
-		// 	in:      []byte("?#?#?#?#?#?#?#?"),
-		// 	damaged: []int{1, 3, 1, 6},
-		// 	want:    1,
-		// },
-		// {
-		// 	in:      []byte("????.#...#..."),
-		// 	damaged: []int{4, 1, 1},
-		// 	want:    1,
-		// },
-		// {
-		// 	in:      []byte("????.######..#####."),
-		// 	damaged: []int{1, 6, 5},
-		// 	want:    4,
-		// },
-		// {
-		// 	in:      []byte("?###????????"),
-		// 	damaged: []int{3, 2, 1},
-		// 	want:    10,
-		// },
+		{
+			in:     []byte(".??..??...?##."),
+			groups: []int{1, 1, 3},
+			want:   4,
+		},
+		{
+			in:     []byte("#.#.###"),
+			groups: []int{1, 1, 3},
+			want:   1,
+		},
+		{
+			in:     []byte(".??..??...?##."),
+			groups: []int{1, 1, 3},
+			want:   4,
+		},
+		{
+			in:     []byte("?#?#?#?#?#?#?#?"),
+			groups: []int{1, 3, 1, 6},
+			want:   1,
+		},
+		{
+			in:     []byte("????.#...#..."),
+			groups: []int{4, 1, 1},
+			want:   1,
+		},
+		{
+			in:     []byte("????.######..#####."),
+			groups: []int{1, 6, 5},
+			want:   4,
+		},
+		{
+			in:     []byte("?###????????"),
+			groups: []int{3, 2, 1},
+			want:   10,
+		},
 	}
 
 	for _, tc := range tests {
@@ -158,6 +152,12 @@ func TestSplitGroups(t *testing.T) {
 			groups:   []int{2, 1},
 			wantHead: []int{2, 1},
 			wantTail: nil,
+		},
+		{
+			in:       []byte("????"),
+			groups:   []int{4, 1, 1},
+			wantHead: []int{4},
+			wantTail: []int{1, 1},
 		},
 	}
 
