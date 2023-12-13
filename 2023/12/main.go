@@ -65,7 +65,11 @@ func solvePartOne(r io.Reader) (int, error) {
 			num, _ := strconv.Atoi(s)
 			groups[i] = num
 		}
-		sum += findArrangements([]byte(springs), groups)
+		arrangements := findArrangements([]byte(springs), groups)
+		fmt.Println("---------")
+		fmt.Println(springs, groups, arrangements)
+		fmt.Println("---------")
+		sum += arrangements
 	}
 	return sum, nil
 }
