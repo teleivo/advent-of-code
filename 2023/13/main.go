@@ -228,29 +228,73 @@ func horizontalMirrorsLocation(pattern [][]byte) []int {
 }
 
 func verticalMirrorsPartTwo(pattern [][]byte) int {
+	locations := verticalMirrorsLocations(pattern)
+
 	var sum int
 	reflectionLine := 1
 	n := len(pattern[0])
 	for reflectionLine < n {
-		var diff int
+		var smudgeRow, smudgeCol int
+		var smudge int
 		isMirror := true
 		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < n; i, j = i-1, j+1 {
-			for _, row := range pattern {
+			for z, row := range pattern {
 				if row[i] != row[j] {
-					diff++
+					smudge++
+					smudgeRow = z
+					smudgeCol = i
 				}
 				// only one smudge can be fixed
-				if diff > 1 {
+				if smudge > 1 {
 					isMirror = false
 					break
 				}
 			}
 		}
 		if isMirror {
-			// adding the elements left oft the reflection line
+			if smudge != 0 {
+				fmt.Println("reflectionLine", reflectionLine, "via smudge in", smudgeRow, smudgeCol, "diff", smudge)
+				old := pattern[smudgeRow][smudgeCol]
+				if old == '.' {
+					pattern[smudgeRow][smudgeCol] = '#'
+				} else {
+					pattern[smudgeRow][smudgeCol] = '.'
+				}
+			} else {
+				fmt.Println("reflectionLine without smudge", reflectionLine)
+				if slices.Contains(locations, reflectionLine) {
+					fmt.Println("skipping old line")
+					reflectionLine++
+					continue
+				}
+			}
+			// adding the elements to the left of the reflection line
 			sum += reflectionLine
+			fmt.Println("sum", sum)
 		}
 		reflectionLine++
 	}
 	return sum
+}
+
+func verticalMirrorsLocations(pattern [][]byte) []int {
+	var locations []int
+	reflectionLine := 1
+	n := len(pattern[0])
+	for reflectionLine < n {
+		isMirror := true
+		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < n; i, j = i-1, j+1 {
+			for _, row := range pattern {
+				if row[i] != row[j] {
+					isMirror = false
+					break
+				}
+			}
+		}
+		if isMirror {
+			locations = append(locations, reflectionLine)
+		}
+		reflectionLine++
+	}
+	return locations
 }
