@@ -75,6 +75,7 @@ func solvePartOne(r io.Reader) (int, error) {
 			fmt.Println(string(line))
 		}
 		sum += horizontalMirrors(pattern)
+		sum += verticalMirrors(pattern)
 	}
 
 	return sum, nil
@@ -86,7 +87,6 @@ func horizontalMirrors(pattern [][]byte) int {
 	for reflectionLine < len(pattern) {
 		isMirror := true
 		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < len(pattern); i, j = i-1, j+1 {
-			fmt.Println("mirror", reflectionLine, "i, j:", i, j)
 			if string(pattern[i]) != string(pattern[j]) {
 				isMirror = false
 				break
@@ -95,6 +95,29 @@ func horizontalMirrors(pattern [][]byte) int {
 		if isMirror {
 			// adding the elements above the reflection line*100
 			sum += reflectionLine * 100
+		}
+		reflectionLine++
+	}
+	return sum
+}
+
+func verticalMirrors(pattern [][]byte) int {
+	var sum int
+	reflectionLine := 1
+	n := len(pattern[0])
+	for reflectionLine < n {
+		isMirror := true
+		for i, j := reflectionLine-1, reflectionLine; i >= 0 && j < n; i, j = i-1, j+1 {
+			for _, row := range pattern {
+				if row[i] != row[j] {
+					isMirror = false
+					break
+				}
+			}
+		}
+		if isMirror {
+			// adding the elements left oft the reflection line
+			sum += reflectionLine
 		}
 		reflectionLine++
 	}

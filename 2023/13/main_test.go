@@ -23,7 +23,7 @@ func TestSolvePartOne(t *testing.T) {
 	assertEquals(t, "solvePartOne", file, got, want)
 }
 
-func TestVerticalMirrors(t *testing.T) {
+func TestHorizontalMirrors(t *testing.T) {
 	tests := []struct {
 		pattern string
 		want    int
@@ -43,6 +43,29 @@ func TestVerticalMirrors(t *testing.T) {
 
 	for _, tc := range tests {
 		got := horizontalMirrors(bytes.Fields([]byte(tc.pattern)))
+		assertEquals(t, "horizontalMirrors", bytes.Fields([]byte(tc.pattern)), got, tc.want)
+	}
+}
+
+func TestVerticalMirrors(t *testing.T) {
+	tests := []struct {
+		pattern string
+		want    int
+	}{
+		{
+			pattern: `#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.`,
+			want: 5,
+		},
+	}
+
+	for _, tc := range tests {
+		got := verticalMirrors(bytes.Fields([]byte(tc.pattern)))
 		assertEquals(t, "verticaMirrors", bytes.Fields([]byte(tc.pattern)), got, tc.want)
 	}
 }
