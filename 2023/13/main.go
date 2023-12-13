@@ -35,12 +35,7 @@ func run(w io.Writer, args []string) error {
 	}
 	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
 
-	f2, err := os.Open(file)
-	if err != nil {
-		return fmt.Errorf("failed to open file %q: %v", file, err)
-	}
-	defer f2.Close()
-	cal, err = solvePartTwo(f2)
+	cal, err = solvePartTwo(file)
 	if err != nil {
 		return err
 	}
@@ -126,8 +121,14 @@ func verticalMirrors(pattern [][]byte) int {
 }
 
 // solvePartTwo solves part two of the puzzle.
-func solvePartTwo(r io.Reader) (int, error) {
-	s := bufio.NewScanner(r)
+func solvePartTwo(file string) (int, error) {
+	f1, err := os.Open(file)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open file %q: %v", file, err)
+	}
+	defer f1.Close()
+	s := bufio.NewScanner(f1)
+
 	var patterns [][][]byte
 	var pattern strings.Builder
 	for s.Scan() {
@@ -152,6 +153,37 @@ func solvePartTwo(r io.Reader) (int, error) {
 			fmt.Println(string(line))
 		}
 		sum += horizontalMirrorsPartTwo(pattern)
+	}
+
+	f2, err := os.Open(file)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open file %q: %v", file, err)
+	}
+	defer f2.Close()
+	s = bufio.NewScanner(f2)
+
+	patterns = nil
+	pattern.Reset()
+	for s.Scan() {
+		line := s.Text()
+		if line == "" {
+			patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
+			pattern.Reset()
+			continue
+		}
+		pattern.WriteString(line)
+		pattern.WriteRune('\n')
+	}
+
+	if pattern.String() != "" {
+		patterns = append(patterns, bytes.Fields([]byte(pattern.String())))
+	}
+
+	for i, pattern := range patterns {
+		fmt.Println("pattern", i)
+		for _, line := range pattern {
+			fmt.Println(string(line))
+		}
 		sum += verticalMirrorsPartTwo(pattern)
 	}
 

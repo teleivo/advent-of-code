@@ -72,13 +72,8 @@ func TestVerticalMirrors(t *testing.T) {
 func TestSolvePartTwo(t *testing.T) {
 	file := "testdata/example"
 	want := 400
-	f, err := os.Open(file)
-	if err != nil {
-		t.Fatalf("failed to open file %q: %v", file, err)
-	}
-	defer f.Close()
 
-	got, err := solvePartTwo(f)
+	got, err := solvePartTwo(file)
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartTwo", file, got, want)
