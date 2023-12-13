@@ -121,6 +121,40 @@ func TestHorizontalMirrorsPartTwo(t *testing.T) {
 		assertEquals(t, "horizontalMirrorsPartTwo", bytes.Fields([]byte(tc.pattern)), got, tc.want)
 	}
 }
+
+func TestVerticalMirrorsPartTwo(t *testing.T) {
+	tests := []struct {
+		pattern string
+		want    int
+	}{
+		{
+			pattern: `#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.`,
+			want: 0,
+		},
+		{
+			pattern: `#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#`,
+			want: 0,
+		},
+	}
+
+	for _, tc := range tests {
+		got := verticalMirrorsPartTwo(bytes.Fields([]byte(tc.pattern)))
+		assertEquals(t, "verticalMirrorsPartTwo", bytes.Fields([]byte(tc.pattern)), got, tc.want)
+	}
+}
+
 func assertError(t *testing.T, err error) {
 	if err == nil {
 		t.Fatal("expected error instead got nil instead", err)
