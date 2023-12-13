@@ -260,7 +260,7 @@ func horizontalMirrorLocations(pattern [][]byte) []int {
 }
 
 func verticalMirrorsPartTwo(pattern [][]byte) int {
-	locations := verticalMirrorsLocations(pattern)
+	locations := verticalMirrorLocations(pattern)
 	fmt.Println("mirror locations old", locations)
 
 	var sum int
@@ -310,7 +310,7 @@ func verticalMirrorsPartTwo(pattern [][]byte) int {
 	return sum
 }
 
-func verticalMirrorsLocations(pattern [][]byte) []int {
+func verticalMirrorLocations(pattern [][]byte) []int {
 	var locations []int
 	reflectionLine := 1
 	n := len(pattern[0])
