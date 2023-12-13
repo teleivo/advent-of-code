@@ -193,7 +193,6 @@ func solvePartTwo(file string) (int, error) {
 func horizontalMirrorsPartTwo(pattern [][]byte) int {
 	locations := horizontalMirrorLocations(pattern)
 
-	var sum int
 	reflectionLine := 1
 	for reflectionLine < len(pattern) {
 		var smudgeRow, smudgeCol int
@@ -231,12 +230,11 @@ func horizontalMirrorsPartTwo(pattern [][]byte) int {
 				}
 			}
 			// adding the elements above the reflection line*100
-			sum += reflectionLine * 100
-			fmt.Println("sum", sum)
+			return reflectionLine * 100
 		}
 		reflectionLine++
 	}
-	return sum
+	return 0
 }
 
 // finds old mirror locations so I can exclude them in part 2 smudges
@@ -263,7 +261,6 @@ func verticalMirrorsPartTwo(pattern [][]byte) int {
 	locations := verticalMirrorLocations(pattern)
 	fmt.Println("mirror locations old", locations)
 
-	var sum int
 	reflectionLine := 1
 	n := len(pattern[0])
 	for reflectionLine < n {
@@ -302,12 +299,11 @@ func verticalMirrorsPartTwo(pattern [][]byte) int {
 				}
 			}
 			// adding the elements to the left of the reflection line
-			sum += reflectionLine
-			fmt.Println("sum", sum)
+			return reflectionLine
 		}
 		reflectionLine++
 	}
-	return sum
+	return 0
 }
 
 func verticalMirrorLocations(pattern [][]byte) []int {
