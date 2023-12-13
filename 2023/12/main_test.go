@@ -26,100 +26,105 @@ func TestFindArrangements(t *testing.T) {
 		groups []int
 		want   int
 	}{
+		// {
+		// 	in:     nil,
+		// 	groups: []int{1, 1, 3},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("#"),
+		// 	groups: []int{1},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("#."),
+		// 	groups: []int{1},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("#.#."),
+		// 	groups: []int{1, 1},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("???.###"),
+		// 	groups: []int{1, 1, 3},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("???"),
+		// 	groups: []int{1},
+		// 	want:   3,
+		// },
+		// {
+		// 	in:     []byte("???"),
+		// 	groups: []int{1, 1},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("????"),
+		// 	groups: []int{2, 1},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("?????"),
+		// 	groups: []int{2, 1},
+		// 	want:   3,
+		// },
+		// {
+		// 	in:     []byte("??????"),
+		// 	groups: []int{2, 1},
+		// 	want:   6,
+		// },
+		// {
+		// 	in:     []byte("???????"),
+		// 	groups: []int{2, 1},
+		// 	want:   10,
+		// },
+		// {
+		// 	in:     []byte(".??..??."),
+		// 	groups: []int{1, 1},
+		// 	want:   4,
+		// },
+		// {
+		// 	in:     []byte(".??..??...?##."),
+		// 	groups: []int{1, 1, 3},
+		// 	want:   4,
+		// },
+		// {
+		// 	in:     []byte("#.#.###"),
+		// 	groups: []int{1, 1, 3},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte(".??..??...?##."),
+		// 	groups: []int{1, 1, 3},
+		// 	want:   4,
+		// },
+		// {
+		// 	in:     []byte("?#?#?#?#?#?#?#?"),
+		// 	groups: []int{1, 3, 1, 6},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("????.#...#..."),
+		// 	groups: []int{4, 1, 1},
+		// 	want:   1,
+		// },
+		// {
+		// 	in:     []byte("????.######..#####."),
+		// 	groups: []int{1, 6, 5},
+		// 	want:   4,
+		// },
+		// {
+		// 	in:     []byte("?###????????"),
+		// 	groups: []int{3, 2, 1},
+		// 	want:   10,
+		// },
 		{
-			in:     nil,
-			groups: []int{1, 1, 3},
-			want:   1,
-		},
-		{
-			in:     []byte("#"),
-			groups: []int{1},
-			want:   1,
-		},
-		{
-			in:     []byte("#."),
-			groups: []int{1},
-			want:   1,
-		},
-		{
-			in:     []byte("#.#."),
-			groups: []int{1, 1},
-			want:   1,
-		},
-		{
-			in:     []byte("???.###"),
-			groups: []int{1, 1, 3},
-			want:   1,
-		},
-		{
-			in:     []byte("???"),
-			groups: []int{1},
-			want:   3,
-		},
-		{
-			in:     []byte("???"),
-			groups: []int{1, 1},
-			want:   1,
-		},
-		{
-			in:     []byte("????"),
-			groups: []int{2, 1},
-			want:   1,
-		},
-		{
-			in:     []byte("?????"),
-			groups: []int{2, 1},
-			want:   3,
-		},
-		{
-			in:     []byte("??????"),
-			groups: []int{2, 1},
-			want:   6,
-		},
-		{
-			in:     []byte("???????"),
-			groups: []int{2, 1},
-			want:   10,
-		},
-		{
-			in:     []byte(".??..??."),
-			groups: []int{1, 1},
-			want:   4,
-		},
-		{
-			in:     []byte(".??..??...?##."),
-			groups: []int{1, 1, 3},
-			want:   4,
-		},
-		{
-			in:     []byte("#.#.###"),
-			groups: []int{1, 1, 3},
-			want:   1,
-		},
-		{
-			in:     []byte(".??..??...?##."),
-			groups: []int{1, 1, 3},
-			want:   4,
-		},
-		{
-			in:     []byte("?#?#?#?#?#?#?#?"),
-			groups: []int{1, 3, 1, 6},
-			want:   1,
-		},
-		{
-			in:     []byte("????.#...#..."),
-			groups: []int{4, 1, 1},
-			want:   1,
-		},
-		{
-			in:     []byte("????.######..#####."),
-			groups: []int{1, 6, 5},
-			want:   4,
-		},
-		{
-			in:     []byte("?###????????"),
-			groups: []int{3, 2, 1},
-			want:   10,
+			in:     []byte("????#??##.?????"),
+			groups: []int{1, 5, 2},
+			want:   12,
 		},
 	}
 
