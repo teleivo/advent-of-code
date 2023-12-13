@@ -71,14 +71,41 @@ func findArrangements(springs []byte, groups []int) int {
 		}
 		return 1
 	}
-
-	if !strings.ContainsAny(string(springs), "#.") && strings.ContainsRune(string(springs), '?') {
-		n := len(springs) - groups[0] - separators(groups)
+	input := strings.Trim(string(springs), ".")
+	// TODO I am using all groups, I might need to only use the one that are <= min width
+	// assuming springs is all ?
+	if !strings.ContainsAny(input, "#.") && strings.ContainsRune(input, '?') {
+		n := len(input) - groups[0] - separators(groups)
 		arrangements := sumOfN(n)
 		return arrangements
 	}
 
-	return 1
+	fmt.Println(input)
+	// find a delimited chunk of springs
+	// either all ????
+	// or what are the other special cases?
+	var end int
+	var unknowns int
+	for end < len(input) {
+		if input[end] == '?' {
+			unknowns++
+		} else if input[end] == '.' && unknowns != 0 {
+			end++ // as this separator needs to be consumed
+			break
+		}
+		end++
+	}
+	head := input[0:end]
+	head = strings.Trim(head, ".")
+	tail := input[end:]
+	tail = strings.Trim(tail, ".")
+	headGroups, tailGroups := splitGroups(head, groups)
+	fmt.Println("chunk", string(head), "rest", string(tail))
+
+	// TODO split groups as well. a group can only be consumed once
+	// in case head is all ????
+
+	return findArrangements([]byte(head), headGroups) + findArrangements([]byte(tail), tailGroups)
 }
 
 func sumOfN(n int) int {
@@ -101,6 +128,20 @@ func sum(nums []int) int {
 // stream of unknown '?' spring conditions
 func separators(groups []int) int {
 	return len(groups) - 1
+}
+
+func splitGroups(unknownSprings string, groups []int) ([]int, []int) {
+	width := len(unknownSprings)
+	for i := 0; i < len(groups); i++ {
+		m := minWidth(groups[:i+1])
+		if width == m {
+			return groups[:i+1], groups[i+1:]
+		}
+		if width < m {
+			return groups[:i], groups[i:]
+		}
+	}
+	return groups, nil
 }
 
 // solvePartTwo solves part two of the puzzle.

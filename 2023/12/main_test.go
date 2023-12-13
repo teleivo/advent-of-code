@@ -85,6 +85,12 @@ func TestFindArrangements(t *testing.T) {
 			groups: []int{2, 1},
 			want:   10,
 		},
+		{
+			in:     []byte(".??..??."),
+			groups: []int{1, 1},
+			want:   4,
+		},
+		// TODO
 		// {
 		// 	in:     []byte(".??..??...?##."),
 		// 	groups: []int{1,1,3},
@@ -128,6 +134,60 @@ func TestFindArrangements(t *testing.T) {
 	}
 }
 
+func TestSplitGroups(t *testing.T) {
+	tests := []struct {
+		in       []byte
+		groups   []int
+		wantHead []int
+		wantTail []int
+	}{
+		{
+			in:       []byte("??"),
+			groups:   []int{1, 1},
+			wantHead: []int{1},
+			wantTail: []int{1},
+		},
+		{
+			in:       []byte("????"),
+			groups:   []int{2, 1},
+			wantHead: []int{2, 1},
+			wantTail: []int{},
+		},
+		{
+			in:       []byte("??????"),
+			groups:   []int{2, 1},
+			wantHead: []int{2, 1},
+			wantTail: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		gotHead, gotTail := splitGroups(string(tc.in), tc.groups)
+		assertDeepEquals(t, "splitGroups Head", tc.in, gotHead, tc.wantHead)
+		assertDeepEquals(t, "splitGroups Tail", tc.in, gotTail, tc.wantTail)
+	}
+}
+
+func TestMinWidth(t *testing.T) {
+	tests := []struct {
+		groups []int
+		want   int
+	}{
+		{
+			groups: []int{2},
+			want:   2,
+		},
+		{
+			groups: []int{2, 1},
+			want:   4,
+		},
+	}
+
+	for _, tc := range tests {
+		got := minWidth(tc.groups)
+		assertEquals(t, "minWidth", tc.groups, got, tc.want)
+	}
+}
 func TestSolvePartTwo(t *testing.T) {
 	t.Skip()
 	file := "testdata/example"
@@ -156,13 +216,13 @@ func assertNoError(t *testing.T, err error) {
 	}
 }
 
-func assertEquals(t *testing.T, method string, in, want, got any) {
+func assertEquals(t *testing.T, method string, in, got, want any) {
 	if got != want {
 		t.Errorf("%s(%q) = %d; want %d", method, in, got, want)
 	}
 }
 
-func assertDeepEquals(t *testing.T, method string, in, want, got any) {
+func assertDeepEquals(t *testing.T, method string, in, got, want any) {
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("%s(%q) mismatch (-want +got):\n%s", method, in, diff)
 	}
