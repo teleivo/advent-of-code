@@ -2,10 +2,11 @@ package main
 
 import (
 	"bufio"
-	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -23,10 +24,11 @@ func run(w io.Writer, args []string) error {
 
 	file := args[1]
 
-	f1, err := os.ReadFile(file)
+	f1, err := os.Open(file)
 	if err != nil {
 		return fmt.Errorf("failed to open file %q: %v", file, err)
 	}
+	defer f1.Close()
 	cal, err := solvePartOne(f1)
 	if err != nil {
 		return err
@@ -48,14 +50,24 @@ func run(w io.Writer, args []string) error {
 }
 
 // solvePartOne solves part one of the puzzle.
-func solvePartOne(b []byte) (int, error) {
-	rows := bytes.Fields(b)
-	for _, row := range rows {
-		for _, v := range row {
-			fmt.Println(string(v))
+func solvePartOne(r io.Reader) (int, error) {
+	s := bufio.NewScanner(r)
+	var sum int
+	for s.Scan() {
+		line := s.Text()
+		springs, groupsStr, found := strings.Cut(line, " ")
+		if !found {
+			return 0, errors.New("failed to split")
 		}
+		numsStr := strings.Split(groupsStr, ",")
+		groups := make([]int, len(numsStr))
+		for i, s := range numsStr {
+			num, _ := strconv.Atoi(s)
+			groups[i] = num
+		}
+		sum += findArrangements([]byte(springs), groups)
 	}
-	return 0, nil
+	return sum, nil
 }
 
 func findArrangements(springs []byte, groups []int) int {

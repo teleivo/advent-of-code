@@ -8,10 +8,11 @@ import (
 )
 
 func TestSolvePartOne(t *testing.T) {
-	t.Skip()
 	file := "testdata/example"
 	want := 21
-	f, err := os.ReadFile(file)
+	f, err := os.Open(file)
+	assertNoError(t, err)
+	defer f.Close()
 
 	got, err := solvePartOne(f)
 
