@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"hash/maphash"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -44,9 +46,6 @@ func run(w io.Writer, args []string) error {
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(in []byte) (int, error) {
 	pattern := bytes.Fields(in)
-	for _, row := range pattern {
-		fmt.Println(string(row))
-	}
 	tiltNorth(pattern)
 	var sum int
 	rows := len(pattern)
@@ -97,10 +96,31 @@ func tiltNorth(in [][]byte) {
 
 // solvePartTwo solves part one of the puzzle.
 func solvePartTwo(in []byte) (int, error) {
+
 	pattern := bytes.Fields(in)
-	for i := 0; i < 1_000_000_000; i++ {
+	seen := make(map[uint64]int)
+	seen2 := make(map[string]int)
+	scores := make(map[int]int)
+	var h maphash.Hash
+	// for i := 0; i < 1_000_000_000; i++ {
+	for i := 0; i < 1000; i++ {
 		fmt.Println("round", i, "to go", 1_000_000_000-i)
 		cycle(pattern)
+		v := hash(h, pattern)
+		if j, ok := seen[v]; ok {
+			fmt.Println("seen pattern before in", j)
+			return 0, nil
+		}
+		v2 := boardToString(pattern)
+		if j, ok := seen2[v2]; ok {
+			scoreId := j - 1 + (1_000_000_000-j)%(len(seen)-j)
+			res := scores[scoreId]
+			fmt.Println("seen pattern before in", j)
+			return res, nil
+		}
+		seen[v] = i
+		seen2[v2] = i
+		scores[i] = calcScore(pattern)
 	}
 	var sum int
 	rows := len(pattern)
@@ -112,6 +132,41 @@ func solvePartTwo(in []byte) (int, error) {
 		}
 	}
 	return sum, nil
+}
+
+func calcScore(in [][]byte) int {
+	var sum int
+	rows := len(in)
+	for row, line := range in {
+		for _, r := range line {
+			if r == 'O' {
+				sum += rows - row
+			}
+		}
+	}
+	return sum
+}
+
+func hash(z maphash.Hash, in [][]byte) uint64 {
+	var h maphash.Hash
+	for _, row := range in {
+		h.Write(row)
+	}
+	res := h.Sum64()
+	fmt.Println(res)
+	h.Reset()
+	return res
+}
+
+func boardToString(in [][]byte) string {
+	var res strings.Builder
+	for i, row := range in {
+		res.WriteString(string(row))
+		if i < len(in)-1 {
+			res.WriteRune('\n')
+		}
+	}
+	return res.String()
 }
 
 func cycle(in [][]byte) {
@@ -189,7 +244,6 @@ func tiltEast(in [][]byte) {
 				minCols = nil
 			} else if r == 'O' {
 				// move rock to the cell furthest up north
-				fmt.Println("row", row, "col", col, minCols)
 				if len(minCols) > 0 {
 					minCol := minCols[0]
 					in[row][minCol] = 'O'

@@ -289,13 +289,61 @@ O.#..O.#.#
 #...O###..
 #..OO#....`,
 		},
+		{
+			in: `O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....`,
+			times: 2,
+			want: `.....#....
+....#...O#
+.....##...
+..O#......
+.....OOO#.
+.O#...O#.#
+....O#...O
+.......OOO
+#..OO###..
+#.OOO#...O`,
+		},
+		{
+			in: `O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....`,
+			times: 3,
+			want: `.....#....
+....#...O#
+.....##...
+..O#......
+.....OOO#.
+.O#...O#.#
+....O#...O
+.......OOO
+#...O###.O
+#.OOO#...O`,
+		},
 	}
 
 	for _, tc := range tests {
 		in := make([]byte, len(tc.in))
 		copy(in, tc.in)
 		inB := bytes.Fields([]byte(in))
-		cycle(inB)
+		for i := 0; i < tc.times; i++ {
+			cycle(inB)
+		}
 		var got strings.Builder
 		for i, row := range inB {
 			got.WriteString(string(row))
