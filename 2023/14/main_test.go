@@ -155,28 +155,28 @@ func TestTiltWest(t *testing.T) {
 		want string
 	}{
 		{
-			in: `
-O....#....
-O.OO#....#
-.....##...
-OO.#O....O
-.O.....O#.
-O.#..O.#.#
-..O..#O..O
-.......O..
-#....###..
-#OO..#....`,
-			want: `
-O....#....
-OO..#....#
-.....##...
-OO.#OO....
-OO......#.
-O.#O...#.#
-O....#OO..
-O.........
-#....###..
-#OO..#....`,
+			in:   `O....#....`,
+			want: `O....#....`,
+		},
+		{
+			in:   `O.OO#....#`,
+			want: `OOO.#....#`,
+		},
+		{
+			in:   `.....##...`,
+			want: `.....##...`,
+		},
+		{
+			in:   `OO.#O....O`,
+			want: `OO.#OO....`,
+		},
+		{
+			in:   `.O.....O#.`,
+			want: `OO......#.`,
+		},
+		{
+			in:   `O.#..O.#.#`,
+			want: `O.#O...#.#`,
 		},
 	}
 
@@ -186,9 +186,11 @@ O.........
 		inB := bytes.Fields([]byte(in))
 		tiltWest(inB)
 		var got strings.Builder
-		for _, row := range inB {
+		for i, row := range inB {
 			got.WriteString(string(row))
-			got.WriteRune('\n')
+			if i < len(inB)-1 {
+				got.WriteRune('\n')
+			}
 		}
 
 		assertDeepEquals(t, "tiltWest", tc.in, got.String(), tc.want)
@@ -276,8 +278,7 @@ O.#..O.#.#
 #....###..
 #OO..#....`,
 			times: 1,
-			want: `
-.....#....
+			want: `.....#....
 ....#...O#
 ...OO##...
 .OO#......
@@ -296,9 +297,11 @@ O.#..O.#.#
 		inB := bytes.Fields([]byte(in))
 		cycle(inB)
 		var got strings.Builder
-		for _, row := range inB {
+		for i, row := range inB {
 			got.WriteString(string(row))
-			got.WriteRune('\n')
+			if i < len(inB)-1 {
+				got.WriteRune('\n')
+			}
 		}
 
 		assertDeepEquals(t, "cycle", tc.in, got.String(), tc.want)
