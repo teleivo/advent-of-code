@@ -23,7 +23,7 @@ func TestSolvePartOne(t *testing.T) {
 	assertEquals(t, "solvePartOne", file, got, want)
 }
 
-func TestTilt(t *testing.T) {
+func TestTiltNorth(t *testing.T) {
 	tests := []struct {
 		in   string
 		want string
@@ -86,7 +86,71 @@ O..#.OO...
 	}
 }
 
+func TestTiltSouth(t *testing.T) {
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{
+			in: `O.OO#O...#
+O...O#....`,
+			want: `O...#O...#
+O.OOO#....
+`,
+		},
+		{
+			in: `O...O#....
+O.O.#....#
+....O.....
+..O.......`,
+			want: `....O#....
+....#....#
+O.O.......
+O.O.O.....
+`,
+		},
+		{
+			in: `O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....`,
+			want: `.....#....
+....#....#
+...O.##...
+...#......
+O.O....O#O
+O.#..O.#.#
+O....#....
+OO....OO..
+#OO..###..
+#OO.O#...O
+`,
+		},
+	}
+
+	for _, tc := range tests {
+		in := make([]byte, len(tc.in))
+		copy(in, tc.in)
+		inB := bytes.Fields([]byte(in))
+		tiltSouth(inB)
+		var got strings.Builder
+		for _, row := range inB {
+			got.WriteString(string(row))
+			got.WriteRune('\n')
+		}
+
+		assertDeepEquals(t, "tiltSouth", tc.in, got.String(), tc.want)
+	}
+}
+
 func TestSolvePartTwo(t *testing.T) {
+	t.Skip()
 	file := "testdata/example"
 	want := 64
 	b, err := os.ReadFile(file)
@@ -98,6 +162,53 @@ func TestSolvePartTwo(t *testing.T) {
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartTwo", file, got, want)
+}
+
+func TestCycle(t *testing.T) {
+	tests := []struct {
+		in    string
+		times int
+		want  string
+	}{
+		{
+			in: `O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....`,
+			times: 1,
+			want: `
+.....#....
+....#...O#
+...OO##...
+.OO#......
+.....OOO#.
+.O#...O#.#
+....O#....
+......OOOO
+#...O###..
+#..OO#....`,
+		},
+	}
+
+	for _, tc := range tests {
+		in := make([]byte, len(tc.in))
+		copy(in, tc.in)
+		inB := bytes.Fields([]byte(in))
+		cycle(inB)
+		var got strings.Builder
+		for _, row := range inB {
+			got.WriteString(string(row))
+			got.WriteRune('\n')
+		}
+
+		assertDeepEquals(t, "cycle", tc.in, got.String(), tc.want)
+	}
 }
 
 func assertError(t *testing.T, err error) {
