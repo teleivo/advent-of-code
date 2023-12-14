@@ -148,17 +148,13 @@ func tiltSouth(in [][]byte) {
 					freeCells[col] = minRows
 				}
 			}
-			// fmt.Println("tilt after", "row", row, "col", col)
-			// for _, row := range in {
-			// fmt.Println(string(row))
-			// }
 		}
 	}
 }
 
 func tiltWest(in [][]byte) {
 	for row, line := range in {
-		minCols := make([]int, len(line))
+		var minCols []int
 		for col := 0; col < len(line); col++ {
 			r := line[col]
 			// keep track of the free cell that is furthest up north
@@ -183,7 +179,7 @@ func tiltWest(in [][]byte) {
 
 func tiltEast(in [][]byte) {
 	for row, line := range in {
-		minCols := make([]int, len(line))
+		var minCols []int
 		for col := len(line) - 1; col >= 0; col-- {
 			r := line[col]
 			// keep track of the free cell that is furthest up north
@@ -193,6 +189,7 @@ func tiltEast(in [][]byte) {
 				minCols = nil
 			} else if r == 'O' {
 				// move rock to the cell furthest up north
+				fmt.Println("row", row, "col", col, minCols)
 				if len(minCols) > 0 {
 					minCol := minCols[0]
 					in[row][minCol] = 'O'
