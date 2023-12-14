@@ -28,24 +28,24 @@ func TestTilt(t *testing.T) {
 		in   string
 		want string
 	}{
-		// 		{
-		// 			in: `O....#....
-		// O.OO#....#`,
-		// 			want: `O.OO.#....
-		// O...#....#
-		// `,
-		// 		},
-		// 		{
-		// 			in: `O....#....
-		// O.O.#....#
-		// ....O.....
-		// ..O.......`,
-		// 			want: `O.O..#....
-		// O.O.#....#
-		// ....O.....
-		// ..........
-		// `,
-		// 		},
+		{
+			in: `O....#....
+O.OO#....#`,
+			want: `O.OO.#....
+O...#....#
+`,
+		},
+		{
+			in: `O....#....
+O.O.#....#
+....O.....
+..O.......`,
+			want: `O.O..#....
+O.O.#....#
+....O.....
+..........
+`,
+		},
 		{
 			in: `O....#....
 O.OO#....#
@@ -75,28 +75,26 @@ O..#.OO...
 		in := make([]byte, len(tc.in))
 		copy(in, tc.in)
 		inB := bytes.Fields([]byte(in))
-		tilt(inB)
+		tiltNorth(inB)
 		var got strings.Builder
 		for _, row := range inB {
 			got.WriteString(string(row))
 			got.WriteRune('\n')
 		}
 
-		assertDeepEquals(t, "tilt", tc.in, got.String(), tc.want)
+		assertDeepEquals(t, "tiltNorth", tc.in, got.String(), tc.want)
 	}
 }
 
 func TestSolvePartTwo(t *testing.T) {
-	t.Skip()
 	file := "testdata/example"
-	want := 5905
-	f, err := os.Open(file)
+	want := 64
+	b, err := os.ReadFile(file)
 	if err != nil {
-		t.Fatalf("failed to open file %q: %v", file, err)
+		t.Fatalf("failed to read file %q: %v", file, err)
 	}
-	defer f.Close()
 
-	got, err := solvePartTwo(f)
+	got, err := solvePartTwo(b)
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartTwo", file, got, want)

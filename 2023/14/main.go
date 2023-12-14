@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -32,12 +31,8 @@ func run(w io.Writer, args []string) error {
 	}
 	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
 
-	f2, err := os.Open(file)
-	if err != nil {
-		return fmt.Errorf("failed to open file %q: %v", file, err)
-	}
-	defer f2.Close()
-	cal, err = solvePartTwo(f2)
+	b2, err := os.ReadFile(file)
+	cal, err = solvePartTwo(b2)
 	if err != nil {
 		return err
 	}
@@ -49,17 +44,13 @@ func run(w io.Writer, args []string) error {
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(in []byte) (int, error) {
 	pattern := bytes.Fields(in)
-	// fmt.Println("before tilt")
 	for _, row := range pattern {
 		fmt.Println(string(row))
 	}
-	tilt(pattern)
-	// fmt.Println()
-	// fmt.Println("after tilt")
+	tiltNorth(pattern)
 	var sum int
 	rows := len(pattern)
 	for row, line := range pattern {
-		// fmt.Println(string(line))
 		for _, r := range line {
 			if r == 'O' {
 				sum += rows - row
@@ -75,7 +66,7 @@ type cell struct {
 	col int
 }
 
-func tilt(in [][]byte) {
+func tiltNorth(in [][]byte) {
 	freeCells := make(map[int][]int)
 	for row, line := range in {
 		for col, r := range line {
@@ -109,12 +100,26 @@ func tilt(in [][]byte) {
 	}
 }
 
-// solvePartTwo solves part two of the puzzle.
-func solvePartTwo(r io.Reader) (int, error) {
-	s := bufio.NewScanner(r)
-	for s.Scan() {
-		line := s.Text()
-		_ = line
+// solvePartTwo solves part one of the puzzle.
+func solvePartTwo(in []byte) (int, error) {
+	pattern := bytes.Fields(in)
+	// fmt.Println("before tilt")
+	for _, row := range pattern {
+		fmt.Println(string(row))
 	}
-	return 0, nil
+	tiltNorth(pattern)
+	// fmt.Println()
+	// fmt.Println("after tilt")
+	var sum int
+	rows := len(pattern)
+	for row, line := range pattern {
+		// fmt.Println(string(line))
+		for _, r := range line {
+			if r == 'O' {
+				sum += rows - row
+			}
+		}
+	}
+
+	return sum, nil
 }
