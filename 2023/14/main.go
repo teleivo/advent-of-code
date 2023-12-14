@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -21,12 +22,11 @@ func run(w io.Writer, args []string) error {
 
 	file := args[1]
 
-	f1, err := os.Open(file)
+	b1, err := os.ReadFile(file)
 	if err != nil {
-		return fmt.Errorf("failed to open file %q: %v", file, err)
+		return fmt.Errorf("failed to read file %q: %v", file, err)
 	}
-	defer f1.Close()
-	cal, err := solvePartOne(f1)
+	cal, err := solvePartOne(b1)
 	if err != nil {
 		return err
 	}
@@ -47,13 +47,66 @@ func run(w io.Writer, args []string) error {
 }
 
 // solvePartOne solves part one of the puzzle.
-func solvePartOne(r io.Reader) (int, error) {
-	s := bufio.NewScanner(r)
-	for s.Scan() {
-		line := s.Text()
-		_ = line
+func solvePartOne(in []byte) (int, error) {
+	pattern := bytes.Fields(in)
+	// fmt.Println("before tilt")
+	for _, row := range pattern {
+		fmt.Println(string(row))
 	}
-	return 0, nil
+	tilt(pattern)
+	// fmt.Println()
+	// fmt.Println("after tilt")
+	var sum int
+	rows := len(pattern)
+	for row, line := range pattern {
+		// fmt.Println(string(line))
+		for _, r := range line {
+			if r == 'O' {
+				sum += rows - row
+			}
+		}
+	}
+
+	return sum, nil
+}
+
+type cell struct {
+	row int
+	col int
+}
+
+func tilt(in [][]byte) {
+	freeCells := make(map[int][]int)
+	for row, line := range in {
+		for col, r := range line {
+			// keep track of the free cell that is furthest up north
+			if r == '.' {
+				if minRows, ok := freeCells[col]; ok {
+					minRows = append(minRows, row)
+					freeCells[col] = minRows
+				} else {
+					freeCells[col] = []int{row}
+				}
+			} else if r == '#' {
+				delete(freeCells, col)
+			} else if r == 'O' {
+				// move rock to the cell furthest up north
+				if minRows, ok := freeCells[col]; ok {
+					minRow := minRows[0]
+					in[minRow][col] = 'O'
+					in[row][col] = '.'
+					minRows = append(minRows, row)
+					// remove top as its taken now by the O
+					minRows = minRows[1:]
+					freeCells[col] = minRows
+				}
+			}
+			// fmt.Println("tilt after", "row", row, "col", col)
+			// for _, row := range in {
+			// fmt.Println(string(row))
+			// }
+		}
+	}
 }
 
 // solvePartTwo solves part two of the puzzle.

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -10,16 +12,78 @@ import (
 func TestSolvePartOne(t *testing.T) {
 	file := "testdata/example"
 	want := 136
-	f, err := os.Open(file)
+	b, err := os.ReadFile(file)
 	if err != nil {
-		t.Fatalf("failed to open file %q: %v", file, err)
+		t.Fatalf("failed to read file %q: %v", file, err)
 	}
-	defer f.Close()
 
-	got, err := solvePartOne(f)
+	got, err := solvePartOne(b)
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartOne", file, got, want)
+}
+
+func TestTilt(t *testing.T) {
+	tests := []struct {
+		in   string
+		want string
+	}{
+		// 		{
+		// 			in: `O....#....
+		// O.OO#....#`,
+		// 			want: `O.OO.#....
+		// O...#....#
+		// `,
+		// 		},
+		// 		{
+		// 			in: `O....#....
+		// O.O.#....#
+		// ....O.....
+		// ..O.......`,
+		// 			want: `O.O..#....
+		// O.O.#....#
+		// ....O.....
+		// ..........
+		// `,
+		// 		},
+		{
+			in: `O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....`,
+			want: `OOOO.#.O..
+OO..#....#
+OO..O##..O
+O..#.OO...
+........#.
+..#....#.#
+..O..#.O.O
+..O.......
+#....###..
+#....#....
+`,
+		},
+	}
+
+	for _, tc := range tests {
+		in := make([]byte, len(tc.in))
+		copy(in, tc.in)
+		inB := bytes.Fields([]byte(in))
+		tilt(inB)
+		var got strings.Builder
+		for _, row := range inB {
+			got.WriteString(string(row))
+			got.WriteRune('\n')
+		}
+
+		assertDeepEquals(t, "tilt", tc.in, got.String(), tc.want)
+	}
 }
 
 func TestSolvePartTwo(t *testing.T) {
