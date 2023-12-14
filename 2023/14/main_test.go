@@ -149,6 +149,52 @@ OO....OO..
 	}
 }
 
+func TestTiltWest(t *testing.T) {
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{
+			in: `
+O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....`,
+			want: `
+O....#....
+OO..#....#
+.....##...
+OO.#OO....
+OO......#.
+O.#O...#.#
+O....#OO..
+O.........
+#....###..
+#OO..#....`,
+		},
+	}
+
+	for _, tc := range tests {
+		in := make([]byte, len(tc.in))
+		copy(in, tc.in)
+		inB := bytes.Fields([]byte(in))
+		tiltWest(inB)
+		var got strings.Builder
+		for _, row := range inB {
+			got.WriteString(string(row))
+			got.WriteRune('\n')
+		}
+
+		assertDeepEquals(t, "tiltWest", tc.in, got.String(), tc.want)
+	}
+}
+
 func TestSolvePartTwo(t *testing.T) {
 	t.Skip()
 	file := "testdata/example"
