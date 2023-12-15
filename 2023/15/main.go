@@ -1,11 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
+	"slices"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -73,10 +75,74 @@ func hash(in string) int {
 
 // solvePartTwo solves part two of the puzzle.
 func solvePartTwo(r io.Reader) (int, error) {
-	s := bufio.NewScanner(r)
-	for s.Scan() {
-		line := s.Text()
-		_ = line
+	cr := csv.NewReader(r)
+	seqs, err := cr.Read()
+	if err != nil {
+		return 0, err
 	}
-	return 0, nil
+
+	boxes := make(map[int][]*lens)
+	for _, seq := range seqs {
+		label, focalLength, add := strings.Cut(seq, "=")
+		if add {
+			boxId := hash(label)
+			val, err := strconv.Atoi(focalLength)
+			if err != nil {
+				return 0, err
+			}
+
+			lenses, ok := boxes[boxId]
+			l := &lens{
+				label:       label,
+				focalLength: val,
+			}
+			if !ok {
+				boxes[boxId] = []*lens{l}
+				continue
+			}
+			id := slices.IndexFunc(lenses, func(l *lens) bool {
+				if l.label == label {
+					return true
+				}
+				return false
+			})
+
+			if id != -1 { // replace existing lens
+				lenses[id] = l
+			} else { // add lens
+				boxes[boxId] = append(boxes[boxId], l)
+			}
+		} else {
+			label, _, _ := strings.Cut(seq, "-")
+			boxId := hash(label)
+			lenses, ok := boxes[boxId]
+			if !ok {
+				continue
+			}
+			id := slices.IndexFunc(lenses, func(l *lens) bool {
+				if l.label == label {
+					return true
+				}
+				return false
+			})
+
+			if id != -1 { // remove existing lens and shift other lenses left
+				boxes[boxId] = slices.Delete(lenses, id, id+1)
+			}
+		}
+	}
+
+	var sum int
+	for i, lenses := range boxes {
+		for j, lens := range lenses {
+			val := (i + 1) * (j + 1) * lens.focalLength
+			sum += val
+		}
+	}
+	return sum, nil
+}
+
+type lens struct {
+	label       string
+	focalLength int
 }

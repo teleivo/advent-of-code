@@ -46,9 +46,8 @@ func TestHash(t *testing.T) {
 }
 
 func TestSolvePartTwo(t *testing.T) {
-	t.Skip()
 	file := "testdata/example"
-	want := 5905
+	want := 145
 	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)
