@@ -9,7 +9,7 @@ import (
 
 func TestSolvePartOne(t *testing.T) {
 	file := "testdata/example"
-	want := 6440
+	want := 1320
 	f, err := os.Open(file)
 	if err != nil {
 		t.Fatalf("failed to open file %q: %v", file, err)
@@ -20,6 +20,29 @@ func TestSolvePartOne(t *testing.T) {
 
 	assertNoError(t, err)
 	assertEquals(t, "solvePartOne", file, got, want)
+}
+
+func TestHash(t *testing.T) {
+	tests := []struct {
+		in      string
+		current int
+		want    int
+	}{
+		{
+			in:   "rn=1",
+			want: 30,
+		},
+		{
+			in:   "cm-",
+			want: 253,
+		},
+	}
+
+	for _, tc := range tests {
+		got := hash(tc.in)
+
+		assertEquals(t, "hash", tc.in, got, tc.want)
+	}
 }
 
 func TestSolvePartTwo(t *testing.T) {

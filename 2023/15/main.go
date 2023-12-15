@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
@@ -48,12 +49,26 @@ func run(w io.Writer, args []string) error {
 
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(r io.Reader) (int, error) {
-	s := bufio.NewScanner(r)
-	for s.Scan() {
-		line := s.Text()
-		_ = line
+	cr := csv.NewReader(r)
+	seqs, err := cr.Read()
+	if err != nil {
+		return 0, err
 	}
-	return 0, nil
+	var sum int
+	for _, seq := range seqs {
+		sum += hash(seq)
+	}
+	return sum, nil
+}
+
+func hash(in string) int {
+	var current int
+	for _, r := range in {
+		current += int(r)
+		current *= 17
+		current %= 256
+	}
+	return current
 }
 
 // solvePartTwo solves part two of the puzzle.
