@@ -170,6 +170,7 @@ func solvePartOne(in []byte) (int, error) {
 				fmt.Printf("hit - splitting left %v and right %v\n", currentBeam, rightBeam)
 			}
 		case '.':
+			energized[currentBeam.pos] = struct{}{}
 			mf, ok := move[currentBeam.dir]
 			if !ok {
 				return 0, errors.New("move func not found")
