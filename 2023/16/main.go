@@ -189,6 +189,17 @@ func solvePartOne(in []byte) (int, error) {
 		}
 	}
 
+	for row := 0; row < len(pattern); row++ {
+		for col := 0; col < len(pattern[0]); col++ {
+			if _, ok := energized[point{row: row, col: col}]; ok {
+				fmt.Print("#")
+			} else {
+				fmt.Print(".")
+			}
+		}
+		fmt.Println()
+	}
+
 	return len(energized), nil
 }
 
