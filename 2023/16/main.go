@@ -34,11 +34,11 @@ func run(w io.Writer, args []string) error {
 	fmt.Fprintf(w, "The solution to puzzle one is: %d\n", cal)
 
 	b2, err := os.ReadFile(file)
-	cal, err = solvePartTwo(b2)
+	cal2, err := solvePartTwo(b2)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", cal)
+	fmt.Fprintf(w, "The solution to puzzle two is: %d\n", cal2)
 
 	return nil
 }
@@ -226,6 +226,119 @@ func fieldToString(pattern [][]byte, energized map[point]struct{}) string {
 // solvePartTwo solves part two of the puzzle.
 func solvePartTwo(in []byte) (int, error) {
 	pattern := bytes.Fields(in)
-	_ = pattern
-	return 0, nil
+	rows := len(pattern)
+	cols := len(pattern[0])
+
+	var todo []beam
+	// start positions in first row
+	for col := 0; col < cols; col++ {
+		todo = append(todo, beam{dir: down, pos: point{row: 0, col: col}})
+	}
+	// start positions in last row
+	for col := 0; col < cols; col++ {
+		todo = append(todo, beam{dir: up, pos: point{row: rows - 1, col: col}})
+	}
+	// start positions in first col
+	for row := 0; row < rows; row++ {
+		todo = append(todo, beam{dir: right, pos: point{row: row, col: 0}})
+	}
+	// start positions in last col
+	for row := 0; row < rows; row++ {
+		todo = append(todo, beam{dir: left, pos: point{row: row, col: cols - 1}})
+	}
+
+	var res int
+	for _, start := range todo {
+		res = max(res, solve(pattern, start))
+	}
+	return res, nil
+}
+
+func solve(pattern [][]byte, start beam) int {
+	todo := []beam{start}
+	seen := make(map[beam]struct{})
+	energized := make(map[point]struct{})
+	for len(todo) > 0 {
+		currentBeam := todo[0]
+		if len(todo) > 1 { // drop beam we already processed
+			todo = todo[1:]
+		} else {
+			todo = nil
+		}
+		if _, ok := seen[currentBeam]; ok {
+			continue
+		}
+		if !isInBounds(currentBeam, pattern) {
+			continue
+		}
+		seen[currentBeam] = struct{}{}
+		energized[currentBeam.pos] = struct{}{}
+
+		switch pattern[currentBeam.pos.row][currentBeam.pos.col] {
+		case '/':
+			if currentBeam.dir == right {
+				currentBeam = moveUp(currentBeam)
+			} else if currentBeam.dir == left {
+				currentBeam = moveDown(currentBeam)
+			} else if currentBeam.dir == up {
+				currentBeam = moveRight(currentBeam)
+			} else if currentBeam.dir == down {
+				currentBeam = moveLeft(currentBeam)
+			}
+			todo = append(todo, currentBeam)
+		case '\\':
+			if currentBeam.dir == right {
+				currentBeam = moveDown(currentBeam)
+			} else if currentBeam.dir == left {
+				currentBeam = moveUp(currentBeam)
+			} else if currentBeam.dir == up {
+				currentBeam = moveLeft(currentBeam)
+			} else if currentBeam.dir == down {
+				currentBeam = moveRight(currentBeam)
+			}
+			todo = append(todo, currentBeam)
+		case '|':
+			if currentBeam.dir == up || currentBeam.dir == down {
+				// continue in the same direction
+				mf, ok := move[currentBeam.dir]
+				if !ok {
+					return 0
+				}
+				currentBeam = mf(currentBeam)
+				todo = append(todo, currentBeam)
+			} else { // split the beam
+				downBeam := moveDown(currentBeam)
+				if isInBounds(downBeam, pattern) {
+					todo = append(todo, downBeam)
+				}
+				currentBeam = moveUp(currentBeam)
+				todo = append(todo, currentBeam)
+			}
+		case '-':
+			if currentBeam.dir == left || currentBeam.dir == right {
+				// continue in the same direction
+				mf, ok := move[currentBeam.dir]
+				if !ok {
+					return 0
+				}
+				currentBeam = mf(currentBeam)
+				todo = append(todo, currentBeam)
+			} else { // split the beam
+				rightBeam := moveRight(currentBeam)
+				if isInBounds(rightBeam, pattern) {
+					todo = append(todo, rightBeam)
+				}
+				currentBeam = moveLeft(currentBeam)
+				todo = append(todo, currentBeam)
+			}
+		case '.':
+			mf, ok := move[currentBeam.dir]
+			if !ok {
+				return 0
+			}
+			currentBeam = mf(currentBeam)
+			todo = append(todo, currentBeam)
+		}
+	}
+	return len(energized)
 }
