@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -56,28 +57,28 @@ type point struct {
 	col int
 }
 
-var move map[direction]func(*beam) = map[direction]func(*beam){
+var move map[direction]func(beam) beam = map[direction]func(beam) beam{
 	left:  moveLeft,
 	right: moveRight,
 	up:    moveUp,
 	down:  moveDown,
 }
 
-func moveLeft(in *beam) {
-	in.dir = left
-	in.pos = point{row: in.pos.row, col: in.pos.col - 1}
+func moveLeft(in beam) beam {
+	return beam{dir: left, pos: point{row: in.pos.row, col: in.pos.col - 1}}
 }
-func moveRight(in *beam) {
-	in.dir = right
-	in.pos = point{row: in.pos.row, col: in.pos.col + 1}
+
+func moveRight(in beam) beam {
+	return beam{dir: right, pos: point{row: in.pos.row, col: in.pos.col + 1}}
 }
-func moveUp(in *beam) {
-	in.dir = up
-	in.pos = point{row: in.pos.row - 1, col: in.pos.col}
+
+func moveUp(in beam) beam {
+	return beam{dir: up, pos: point{row: in.pos.row - 1, col: in.pos.col}}
+
 }
-func moveDown(in *beam) {
-	in.dir = down
-	in.pos = point{row: in.pos.row + 1, col: in.pos.col}
+
+func moveDown(in beam) beam {
+	return beam{dir: down, pos: point{row: in.pos.row + 1, col: in.pos.col}}
 }
 
 type beam struct {
@@ -88,125 +89,138 @@ type beam struct {
 // solvePartOne solves part one of the puzzle.
 func solvePartOne(in []byte) (int, error) {
 	pattern := bytes.Fields(in)
+	seen := make(map[beam]struct{})
 
 	energized := make(map[point]struct{})
-	beams := []*beam{{dir: right}}
+	todo := []beam{{dir: right}}
 
-	for len(beams) > 0 {
-		currentBeam := beams[0]
-		fmt.Printf("currentBeam %v\n", currentBeam)
+	for len(todo) > 0 {
+		currentBeam := todo[0]
+		fmt.Printf("currentBeam %#v\n", currentBeam)
+		if len(todo) > 1 { // drop beam we already processed
+			todo = todo[1:]
+		} else {
+			todo = nil
+		}
+		if _, ok := seen[currentBeam]; ok {
+			fmt.Printf("beam already seen %v\n", currentBeam)
+			continue
+		}
+		if !isInBounds(currentBeam, pattern) {
+			fmt.Printf("beam is out of bounds %v\n", currentBeam)
+			continue
+		}
+		seen[currentBeam] = struct{}{}
+		energized[currentBeam.pos] = struct{}{}
 
 		switch pattern[currentBeam.pos.row][currentBeam.pos.col] {
 		case '/':
-			energized[currentBeam.pos] = struct{}{}
 			if currentBeam.dir == right {
-				moveUp(currentBeam)
+				currentBeam = moveUp(currentBeam)
 				fmt.Printf("hit / moving up to %v\n", currentBeam)
 			} else if currentBeam.dir == left {
-				moveDown(currentBeam)
+				currentBeam = moveDown(currentBeam)
 				fmt.Printf("hit / from left moving down to %v\n", currentBeam)
-			} else { // currentBeam.dir == up || currentBeam.dir == down
-				// continue in the same beam.direction
-				mf, ok := move[currentBeam.dir]
-				if !ok {
-					return 0, errors.New("move func not found")
-				}
-				mf(currentBeam)
-				fmt.Printf("hit / from up or down so continue in the same direction%v\n", currentBeam)
+			} else if currentBeam.dir == up {
+				currentBeam = moveRight(currentBeam)
+				fmt.Printf("hit / from up moving right to %v\n", currentBeam)
+			} else if currentBeam.dir == down {
+				currentBeam = moveLeft(currentBeam)
+				fmt.Printf("hit / from down moving left to %v\n", currentBeam)
 			}
+			todo = append(todo, currentBeam)
 		case '\\':
-			energized[currentBeam.pos] = struct{}{}
 			if currentBeam.dir == right {
-				moveDown(currentBeam)
+				currentBeam = moveDown(currentBeam)
 				fmt.Printf("hit \\ moving down to %v\n", currentBeam)
 			} else if currentBeam.dir == left {
-				moveUp(currentBeam)
+				currentBeam = moveUp(currentBeam)
 				fmt.Printf("hit \\ from the left moving up to %v\n", currentBeam)
-			} else { // if currentBeam.dir == up || currentBeam.dir == down
-				// continue in the same direction
-				mf, ok := move[currentBeam.dir]
-				if !ok {
-					return 0, errors.New("move func not found")
-				}
-				mf(currentBeam)
-				fmt.Printf("hit \\ from left or right so continue in the same direction%v\n", currentBeam)
+			} else if currentBeam.dir == up {
+				currentBeam = moveLeft(currentBeam)
+				fmt.Printf("hit \\ from the up moving left to %v\n", currentBeam)
+			} else if currentBeam.dir == down {
+				currentBeam = moveRight(currentBeam)
+				fmt.Printf("hit \\ from the down moving right to %v\n", currentBeam)
 			}
+			todo = append(todo, currentBeam)
 		case '|':
-			energized[currentBeam.pos] = struct{}{}
 			if currentBeam.dir == up || currentBeam.dir == down {
 				// continue in the same direction
 				mf, ok := move[currentBeam.dir]
 				if !ok {
 					return 0, errors.New("move func not found")
 				}
-				mf(currentBeam)
+				currentBeam = mf(currentBeam)
 				fmt.Printf("hit | from up or down so continue in the same direction%v\n", currentBeam)
+				todo = append(todo, currentBeam)
 			} else { // split the beam
-				downBeam := &beam{pos: currentBeam.pos}
-				moveDown(downBeam)
+				downBeam := moveDown(currentBeam)
 				if isInBounds(downBeam, pattern) {
-					beams = append(beams, downBeam)
+					todo = append(todo, downBeam)
 				}
-				moveUp(currentBeam)
+				currentBeam = moveUp(currentBeam)
+				todo = append(todo, currentBeam)
 				fmt.Printf("hit | splitting up %v and down %v\n", currentBeam, downBeam)
 			}
 		case '-':
-			energized[currentBeam.pos] = struct{}{}
 			if currentBeam.dir == left || currentBeam.dir == right {
 				// continue in the same direction
 				mf, ok := move[currentBeam.dir]
 				if !ok {
 					return 0, errors.New("move func not found")
 				}
-				mf(currentBeam)
+				currentBeam = mf(currentBeam)
 				fmt.Printf("hit - from left or right so continue in the same direction%v\n", currentBeam)
+				todo = append(todo, currentBeam)
 			} else { // split the beam
-				rightBeam := &beam{pos: currentBeam.pos}
-				moveRight(rightBeam)
+				rightBeam := moveRight(currentBeam)
 				if isInBounds(rightBeam, pattern) {
-					beams = append(beams, rightBeam)
+					todo = append(todo, rightBeam)
 				}
-				moveLeft(currentBeam)
+				currentBeam = moveLeft(currentBeam)
+				todo = append(todo, currentBeam)
 				fmt.Printf("hit - splitting left %v and right %v\n", currentBeam, rightBeam)
 			}
 		case '.':
-			energized[currentBeam.pos] = struct{}{}
 			mf, ok := move[currentBeam.dir]
 			if !ok {
 				return 0, errors.New("move func not found")
 			}
-			mf(currentBeam)
+			currentBeam = mf(currentBeam)
+			todo = append(todo, currentBeam)
 			fmt.Printf("empty tile continue moving %v\n", currentBeam)
 		}
 
-		if !isInBounds(currentBeam, pattern) {
-			fmt.Printf("current beam out of bounds %v\n", currentBeam)
-			if len(beams) > 1 {
-				beams = beams[1:]
-			} else {
-				beams = nil
-			}
-		}
+		st := fieldToString(pattern, energized)
+		fmt.Println(st)
+		fmt.Println("energized tiles", len(energized))
 	}
 
-	for row := 0; row < len(pattern); row++ {
-		for col := 0; col < len(pattern[0]); col++ {
-			if _, ok := energized[point{row: row, col: col}]; ok {
-				fmt.Print("#")
-			} else {
-				fmt.Print(".")
-			}
-		}
-		fmt.Println()
-	}
-
+	st := fieldToString(pattern, energized)
+	fmt.Println(st)
 	return len(energized), nil
 }
 
-func isInBounds(in *beam, field [][]byte) bool {
+func isInBounds(in beam, field [][]byte) bool {
 	rows := len(field)
 	cols := len(field[0])
 	return in.pos.row >= 0 && in.pos.row < rows && in.pos.col >= 0 && in.pos.col < cols
+}
+
+func fieldToString(pattern [][]byte, energized map[point]struct{}) string {
+	var res strings.Builder
+	for row := 0; row < len(pattern); row++ {
+		for col := 0; col < len(pattern[0]); col++ {
+			if _, ok := energized[point{row: row, col: col}]; ok {
+				res.WriteRune('#')
+			} else {
+				res.WriteRune('.')
+			}
+		}
+		res.WriteRune('\n')
+	}
+	return res.String()
 }
 
 // solvePartTwo solves part two of the puzzle.
